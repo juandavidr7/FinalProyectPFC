@@ -4,9 +4,18 @@ import Oraculo._
 package object ReconstCadenas {
 
   def reconstruirCadenaIngenuo(n: Int, o: Oraculo): Seq[Char] = {
-    // Recibe la longitud de la secuencia que hay que reconstruir (n), y un oráculo para esa secuencia
-    // Devuelve la secuencia reconstruida
-    ???
+    // Genera todas las cadenas de longitud exactamente n sobre el alfabeto
+    val candidatos: Seq[Seq[Char]] =
+      (1 to n).foldLeft(Seq(Seq.empty[Char])) { (acc, _) =>
+        for {
+          prefijo <- acc
+          c <- alfabeto
+        } yield prefijo :+ c
+      }
+
+    // Busca la primera cadena aceptada por el oráculo
+    candidatos //Esto lanza error porque la función debe devolver Seq[Char] xd, entonces tenemos que hacerle
+    // un proceso con el .find(o) y un patrón match
   }
 
   def reconstruirCadenaMejorado(n: Int, o: Oraculo): Seq[Char] = {
