@@ -24,9 +24,37 @@ package object ReconstCadenas {
   }
 
   def reconstruirCadenaTurbo(n: Int, o: Oraculo): Seq[Char] = {
+    //Comprobación de que la longitud es una potencia de 2
+    require((n & (n - 1)) == 0, "La longitud debe ser una potencia de 2")
     // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s
     // n debe ser potencia de 2
-    ???
+    val alfabeto = Oraculo.alfabeto
+
+    def generarConjuntos(k:Int):Seq[Seq[Char]] = {
+      if (k == 1) alfabeto.map(Seq(_))
+      else {
+        val subcadena = generarConjuntos(k/2)
+        for {
+          a <- subcadena
+          b <- subcadena
+        } yield a++b
+      }
+    }
+    def turbo(k:Int, actual: Seq[char]): Seq[char] ={
+      if (k==0) actual
+      else{
+        val candidatas = generarConjuntos(k)
+        val cadenasValidas = candidatas.find(b=> o(actual++b))
+        cadenasValidas match{
+          case Some(cadena) => turbo(k/2, actual++cadena)
+          case none =>{
+            //Si no hay cadenas válidas ya se terminó
+            actual
+          }
+        }
+      }
+      turbo(n/2, Seq.empty[Char])
+    } 
   }
 
   def reconstruirCadenaTurboMejorada(n: Int, o: Oraculo): Seq[Char] = {
