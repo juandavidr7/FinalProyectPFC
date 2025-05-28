@@ -40,7 +40,7 @@ package object ReconstCadenas {
         } yield a++b
       }
     }
-    def turbo(k:Int, actual: Seq[char]): Seq[char] ={
+    def turbo(k:Int, actual: Seq[Char]): Seq[Char] ={
       if (k==0) actual
       else{
         val candidatas = generarConjuntos(k)
