@@ -213,7 +213,7 @@
         "platform": {
             "name": "jvm",
             "config": {
-                "home": "C:\\Users\\PC\\AppData\\Local\\Coursier\\cache\\arc\\https\\github.com\\adoptium\\temurin17-binaries\\releases\\download\\jdk-17.0.15%252B6\\OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip\\jdk-17.0.15+6",
+                "home": "C:\\Users\\PC\\.gradle\\jdks\\eclipse_adoptium-17-amd64-windows\\jdk-17.0.13+11",
                 "options": [
                     "-Duser.dir=C:\\Users\\PC\\Desktop\\universidad\\Semestre4\\FyC\\FinalProyectPFC\\project"
                 ]
@@ -222,7 +222,7 @@
                 
             ],
             "runtimeConfig": {
-                "home": "C:\\Users\\PC\\AppData\\Local\\Coursier\\cache\\arc\\https\\github.com\\adoptium\\temurin17-binaries\\releases\\download\\jdk-17.0.15%252B6\\OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip\\jdk-17.0.15+6",
+                "home": "C:\\Users\\PC\\.gradle\\jdks\\eclipse_adoptium-17-amd64-windows\\jdk-17.0.13+11",
                 "options": [
                     "-Duser.dir=C:\\Users\\PC\\Desktop\\universidad\\Semestre4\\FyC\\FinalProyectPFC\\project"
                 ]
