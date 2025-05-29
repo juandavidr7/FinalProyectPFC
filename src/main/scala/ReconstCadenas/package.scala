@@ -14,19 +14,36 @@ package object ReconstCadenas {
       }
 
     // Busca la primera cadena aceptada por el oráculo
-    candidatos //Esto lanza error porque la función debe devolver Seq[Char] xd, entonces tenemos que hacerle
-    // un proceso con el .find(o) y un patrón match
+    candidatos.find(o) match {
+      case Some(cadena) => cadena
+      case None => throw new NoSuchElementException("¡El oráculo no reconoció ninguna cadena!")
+    }
   }
 
   def reconstruirCadenaMejorado(n: Int, o: Oraculo): Seq[Char] = {
-    // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s
-    ???
+
+    // Generar todas las secuencias válidas desde longitud 1 hasta n
+    val todas: Seq[Seq[Char]] = (1 to n).foldLeft(Seq(Seq.empty[Char])) {
+
+      (candidatosPrevios, _) =>
+        for {
+          prefijo <- candidatosPrevios
+          c <- alfabeto
+          nuevo = prefijo :+ c
+          if o(nuevo)
+        } yield nuevo
+    }
+
+
+    // Buscar una secuencia válida de longitud n
+    todas.find(o) match {
+      case Some(cadena) => cadena
+      case None => throw new NoSuchElementException("¡No se encontró ninguna cadena aceptada por el oráculo!")
+    }
   }
 
   def reconstruirCadenaTurbo(n: Int, o: Oraculo): Seq[Char] = {
-    // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s
-    // n debe ser potencia de 2
-    ???
+
   }
 
   def reconstruirCadenaTurboMejorada(n: Int, o: Oraculo): Seq[Char] = {
