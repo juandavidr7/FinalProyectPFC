@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="root [file:/C:/Users/Juan%20David/Projects/final_proyect_PFC/]" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_17">
+  <component name="DisplayModuleName">
+    <option name="name" value="final_proyect_PFC" />
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_X">
     <output url="file://$MODULE_DIR$/../../target/scala-3.3.6/classes" />
     <output-test url="file://$MODULE_DIR$/../../target/scala-3.3.6/test-classes" />
     <exclude-output />
