@@ -14,8 +14,9 @@ package object ReconstCadenas {
       }
 
     // Busca la primera cadena aceptada por el oráculo
-    candidatos //Esto lanza error porque la función debe devolver Seq[Char] xd, entonces tenemos que hacerle
-    // un proceso con el .find(o) y un patrón match
+    candidatos.find(o) match {
+      case Some(cadena) => cadena
+      case None => Seq.empty[Char]
   }
 
   def reconstruirCadenaMejorado(n: Int, o: Oraculo): Seq[Char] = {
