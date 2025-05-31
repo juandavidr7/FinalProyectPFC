@@ -27,80 +27,61 @@ package object ReconstCadenas {
     // Comprobación de que la longitud es una potencia de 2 y positiva
     require(n > 0 && (n & (n - 1)) == 0, "La longitud n debe ser una potencia de 2 y mayor que 0")
 
-    val alfabeto = Oraculo.alfabeto
-
-    // Genera todas las cadenas posibles de longitud k combinando subcadenas de longitud k/2
-    def generarConjuntos(k: Int): Seq[Seq[Char]] = {
-      if (k == 0) Seq(Seq.empty[Char]) // Caso base 
-      else if (k == 1) alfabeto.map(Seq(_))
-      else {
-        // k debe ser potencia de 2 y k >= 2
-        val subcadenas = generarConjuntos(k / 2)
-        for {
-          a <- subcadenas
-          b <- subcadenas
-        } yield a ++ b
-      }
-    }
-
-    // Función interna que reconstruye N-1 caracteres (S.substring(1))
-    // k: tamaño del bloque actual a buscar
-    // actual: la cadena construida hasta ahora
-    def internal_turbo(k: Int, actual: Seq[Char]): Seq[Char] = {
-      if (k == 0) { // Caso base: se intentaron bloques de N/2, N/4, ..., 1.
-        actual // 'actual' ahora tiene N-1 caracteres.
-      } else {
-        val candidatas = generarConjuntos(k)
-        // Encuentra un bloque 'b' tal que 'actual ++ b' sea una subcadena de S
-        val bloqueEncontradoOpt = candidatas.find(b => o(actual ++ b))
-
-        bloqueEncontradoOpt match {
-          case Some(bloque) =>
-            internal_turbo(k / 2, actual ++ bloque) // Siguiente bloque será de tamaño k/2
-          case None =>
-            throw new RuntimeException(s"No se encontró bloque válido de longitud $k para concatenar con '$actual'")
-        }
-      }
-    }
-
-    // --- Lógica principal de reconstruirCadenaTurbo ---
+    val subcadenasValidasLongitudUno: Set[Seq[Char]] = Oraculo.alfabeto.map(Seq(_)).filter(s => o(s)).toSet
 
     if (n == 1) {
-      // Caso especial: reconstruir una cadena de longitud 1
-      val candidatasUnCaracter = generarConjuntos(1)
-      candidatasUnCaracter.find(s => o(s)) match {
-        case Some(charSeq) => charSeq
-        case None => throw new RuntimeException("No se pudo reconstruir la cadena de longitud 1.")
+      // Si n es 1, y después de filtrar el alfabeto, no queda ninguna subcadena válida de longitud 1,
+      // entonces algo está mal (o la cadena secreta no usa caracteres del alfabeto provisto).
+      if (subcadenasValidasLongitudUno.isEmpty) {
+        throw new RuntimeException("No se encontró ninguna subcadena válida de longitud 1 a partir del alfabeto. No se puede reconstruir.")
       }
-    } else {
-      // Para n > 1 (y n es potencia de 2)
-      // internal_turbo(n/2, Seq.empty[Char]) debería devolver S.substring(1), que tiene longitud n-1
-      val cadenaSinPrimerCaracter = internal_turbo(n / 2, Seq.empty[Char])
-
-      if (cadenaSinPrimerCaracter.length != n - 1) {
-        // Esto indicaría que la premisa (que internal_turbo devuelve N-1 caracteres) es incorrecta.
-        // O que la observación de que falta el primer caracter no siempre se cumple.
-        throw new IllegalStateException(
-          s"La función interna 'internal_turbo' devolvió una cadena de longitud ${cadenaSinPrimerCaracter.length}, " +
-            s"se esperaba ${n - 1}. Cadena obtenida: '${cadenaSinPrimerCaracter.mkString}'. " +
-            "Verifica la lógica de 'internal_turbo' o la observación del problema."
-        )
-      }
-
-      // Ahora, encontramos el primer carácter que falta
-      // Buscamos 'char' en el alfabeto tal que 'char' + cadenaSinPrimerCaracter sea una subcadena de S (y por ende S misma)
-      val primerCaracterOpt = alfabeto.map(Seq(_)).find { charSeq =>
-        o(charSeq ++ cadenaSinPrimerCaracter)
-      }
-
-      primerCaracterOpt match {
-        case Some(primerChar) => primerChar ++ cadenaSinPrimerCaracter
-        case None =>
-          throw new RuntimeException(s"No se pudo encontrar el primer carácter para la cadena que termina en '${cadenaSinPrimerCaracter.mkString}'")
-      }
+      // Si no está vacío, cualquier elemento es la respuesta (ya que solo buscamos longitud 1).
+      // .head tomará el primer (y en este caso, único esperado) elemento.
+      return subcadenasValidasLongitudUno.head
     }
+
+    // 'subcadenasValidasAnteriores' son las SCk/2
+    def internal_turbo(subcadenasValidasAnteriores: Set[Seq[Char]], k: Int): Seq[Char] = {
+
+      if (k > n) {
+        subcadenasValidasAnteriores.find(_.length == n) match {
+          case Some(sol) => return sol
+          case None => throw new RuntimeException("No se encontró solución")
+        }
+      }
+
+      val candidatos = for {
+        s1 <- subcadenasValidasAnteriores
+        s2 <- subcadenasValidasAnteriores
+      } yield s1 ++ s2
+
+      // Primero, buscamos si la solución ya está en los candidatos.
+      //option se usa para casos donde son soluciones opcionales, lo impolementé aquí para que no de errores en el bucle ni nada por el estilo
+      val solucionOpt: Option[Seq[Char]] = candidatos.find { cadenaCandidata =>
+        cadenaCandidata.length == n && o(cadenaCandidata)
+      }
+
+      if (solucionOpt.isDefined) {
+        return solucionOpt.get // Si se encuentra la solución aquí pues se retorna inmediatamente, no como lo estaba haciendo antes xd
+      }
+
+      // Si no se encontró la solución final, filtramos los candidatos válidos para la siguiente iteración.
+      //El Set sirve para eliminar cadenas duplicadas y hace todo más sencillo que si hubiera puesto Seq[Seq[Char]] porque tocaría hacer más comprobaciones
+      val conjuntoNuevasSubcadenas: Set[Seq[Char]] = candidatos.filter { cadenaCandidata =>
+        // Aseguramos que solo consideramos cadenas de la longitud actual K para la siguiente etapa, y que son válidas según el oráculo.
+        cadenaCandidata.length == k && o(cadenaCandidata)
+      }
+
+      if (conjuntoNuevasSubcadenas.isEmpty) {
+        throw new RuntimeException("No se encontraron subcadenas válidas de longitud k")
+      }
+
+      internal_turbo(conjuntoNuevasSubcadenas, k * 2)
+    }
+
+    internal_turbo(subcadenasValidasLongitudUno, 2)
   }
-  
+
 
   def reconstruirCadenaTurboMejorada(n: Int, o: Oraculo): Seq[Char] = {
     // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s
