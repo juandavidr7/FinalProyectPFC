@@ -1,0 +1,5 @@
+[0m[[0m[33mwarn[0m] [0m[0m[33m[33m-- Deprecation Warning: C:\Users\Jhon Anthony\Downloads\Funcional y Concurrente\Proyecto\FinalProyectPFC\src\main\scala\ReconstCadenasPar\package.scala:28:19 [0m[0m[0m
+[0m[[0m[33mwarn[0m] [0m[0m[33m28 |[0m        prefijo <- fuente[0m
+[0m[[0m[33mwarn[0m] [0m[0m[33m[33m   |[0m                   ^^^^^^[0m[0m
+[0m[[0m[33mwarn[0m] [0m[0m[33m   |[0m[33mmethod[0m [35mflatMap[0m in [33mclass[0m [35mIterableOnceExtensionMethods[0m is deprecated since 2.13.0: Use .iterator.flatMap instead or consider requiring an Iterable[0m
+[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
