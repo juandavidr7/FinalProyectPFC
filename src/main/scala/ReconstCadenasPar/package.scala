@@ -9,8 +9,19 @@ package object ReconstCadenasPar {
 
   // Versión paralela ingenua
   def reconstruirCadenaIngenuoPar(umbral: Int)(n: Int, o: Oraculo): Seq[Char] = {
-    // Usa paralelismo de tareas
-    ???
+    val candidatos: Seq[Seq[Char]] =
+      (1 to n).foldLeft(Seq(Seq.empty[Char])) { (acc, _) =>
+        for {
+          prefijo <- acc
+          c <- alfabeto
+        } yield prefijo :+ c
+      }
+
+    val buscar = if (candidatos.size >= umbral) candidatos.par else candidatos
+    buscar.iterator.find(o) match {
+      case Some(cadena) => cadena
+      case None => Seq.empty[Char]
+    }
   }
 
 
