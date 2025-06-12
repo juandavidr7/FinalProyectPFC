@@ -119,14 +119,73 @@ package object ReconstCadenas {
 //    ???
 //  }
 
-  
-  // Solucion turbo acelerada
-//  def reconstruirCadenaTurboAcelerada(n: Int, o: Oraculo): Seq[Char] = {
-//    // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s
-//    // Usa el filtro para ir más rápido
-//    // Usa árboles de sufijos para guardar Seq[Seq[Char]]
-//    // n debe ser potencia de 2
-//    ???
-//  }
+
+  // Version mejorada del algoritmo turbo que usa arboles de sufijos para acelerar el proceso
+  def reconstruirCadenaTurboAcelerada(n: Int, o: Oraculo): Seq[Char] = {
+    // Verificamos que n sea potencia de 2 y mayor que 0
+    require(n > 0 && (n & (n - 1)) == 0, "La longitud n debe ser una potencia de 2 y mayor que 0")
+
+    // Primero obtenemos todas las cadenas validas de longitud 1
+    val subcadenasValidasLongitudUno = Oraculo.alfabeto.map(Seq(_)).filter(s => o(s)).toSeq
+
+    // Si se busca una cadena de longitud 1 se devuelve la primera que encontramos
+    if (n == 1) {
+      if (subcadenasValidasLongitudUno.isEmpty) {
+        throw new RuntimeException("No se encontro ninguna subcadena valida de longitud 1.")
+      }
+      return subcadenasValidasLongitudUno.head
+    }
+
+    // Creamos un arbol de sufijos con las cadenas de longitud 1 para optimizar busquedas
+    val arbolSufijosInicial = ArbolSufijos.arbolDeSufijos(subcadenasValidasLongitudUno)
+
+    // Funcion recursiva que va construyendo cadenas cada vez mas largas
+    @annotation.tailrec
+    def internal_turbo_acelerada(subcadenasValidasAnteriores: Seq[Seq[Char]], trieAnterior: ArbolSufijos.Trie, k: Int): Seq[Char] = {
+
+      // Si k es mayor que n buscamos la solucion en las cadenas que ya tenemos
+      if (k > n) {
+        subcadenasValidasAnteriores.find(_.length == n) match {
+          case Some(sol) => return sol
+          case None => throw new RuntimeException(s"No se encontro solucion de longitud $n.")
+        }
+      }
+
+      // Generamos nuevos candidatos combinando las subcadenas validas anteriores
+      val candidatos = for {
+        s1 <- subcadenasValidasAnteriores
+        s2 <- subcadenasValidasAnteriores
+      } yield s1 ++ s2
+
+      // Comprobamos si ya tenemos la solucion entre los candidatos
+      val solucionOpt = candidatos.find(cand => cand.length == n && o(cand))
+
+      solucionOpt match {
+        case Some(solucionEncontrada) => return solucionEncontrada
+        case None => // No se encuentra la solucion se sigue con el algoritmo
+      }
+
+      // Filtramos los candidatos para quedarnos con las subcadenas validas de longitud k
+      val nuevasSubcadenasValidas = candidatos.filter { cand =>
+        cand.length == k && o(cand)
+      }.foldLeft(Seq.empty[Seq[Char]]) { (acc, elem) =>
+        if (acc.contains(elem)) acc else acc :+ elem
+      } // Eliminamos duplicados con foldLeft
+
+      // Si no hay subcadenas validas lanzamos una excepcion
+      if (nuevasSubcadenasValidas.isEmpty) {
+        throw new RuntimeException(s"No se encontraron subcadenas validas de longitud $k.")
+      }
+
+      // Creamos un nuevo arbol de sufijos con las subcadenas validas encontradas
+      val nuevoTrie = ArbolSufijos.arbolDeSufijos(nuevasSubcadenasValidas)
+
+      // Llamamos recursivamente a la funcion duplicando la longitud k
+      internal_turbo_acelerada(nuevasSubcadenasValidas, nuevoTrie, k * 2)
+    }
+
+    // Iniciamos el proceso con las cadenas de longitud 1 y buscamos cadenas de longitud 2
+    internal_turbo_acelerada(subcadenasValidasLongitudUno, arbolSufijosInicial, 2)
+  }
 
 }
