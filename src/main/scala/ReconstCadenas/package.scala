@@ -156,7 +156,7 @@ package object ReconstCadenas {
   }
 
 
-  
+
   // Solucion turbo acelerada
 //  def reconstruirCadenaTurboAcelerada(n: Int, o: Oraculo): Seq[Char] = {
 //    // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s

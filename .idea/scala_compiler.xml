@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="sbt 1" modules="final_proyect_PFC">
+    <profile name="sbt 1" modules="FinalProyectPFC.final_proyect_PFC,final_proyect_PFC">
       <option name="implicitConversions" value="true" />
       <option name="deprecationWarnings" value="true" />
     </profile>
