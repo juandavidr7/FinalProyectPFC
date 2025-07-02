@@ -1,0 +1,4 @@
+[warn] sbt-bloop_2.12_1.0-2.0.10-sources.jar no longer exists at C:\Users\Juan David\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\ch\epfl\scala\sbt-bloop_2.12_1.0\2.0.10\sbt-bloop_2.12_1.0-2.0.10-sources.jar
+[debug] not up to date. inChanged = false, force = false
+[debug] Updating ProjectRef(uri("file:/C:/Users/HP/IdeaProjects/FinalProyectPFC/project/"), "finalproyectpfc-build")...
+[debug] Done updating ProjectRef(uri("file:/C:/Users/HP/IdeaProjects/FinalProyectPFC/project/"), "finalproyectpfc-build")

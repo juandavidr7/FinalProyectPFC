@@ -9,10 +9,66 @@ package object ReconstCadenasPar {
 
   // Versión paralela ingenua
   def reconstruirCadenaIngenuoPar(umbral: Int)(n: Int, o: Oraculo): Seq[Char] = {
-    // Usa paralelismo de tareas
-    ???
-  }
 
+    // --- FUNCIÓN AUXILIAR RECURSIVA Y PARALELA ---
+    def findPar(prefijos: Seq[Seq[Char]]): Option[Seq[Char]] = {
+
+      // Si la lista de prefijos a probar es menor o igual al umbral,
+      // no vale la pena paralelizar. Lo hacemos secuencialmente.
+      if (prefijos.length <= umbral) {
+        // --- CASO BASE: BÚSQUEDA SECUENCIAL EFICIENTE ---
+
+        // Creamos una LazyList que, para cada prefijo, busca una solución.
+        // Esta es la parte que vamos a reemplazar con nuestra lógica eficiente.
+        val resultados: LazyList[Option[Seq[Char]]] = prefijos.to(LazyList).map { prefijo =>
+
+          // Longitud de los sufijos que necesitamos generar.
+          val longitudSufijo = n - prefijo.length
+
+          // 1. Generador EFICIENTE de sufijos (construidos al revés).
+          //    Usamos `c +: p` que es una operación de tiempo constante.
+          val sufijosAlReves: LazyList[Seq[Char]] =
+            (1 to longitudSufijo).foldLeft(LazyList(Seq.empty[Char])) { (acc, _) =>
+              for {p <- acc; c <- alfabeto} yield c +: p
+            }
+
+          // 2. Para cada sufijo al revés, lo invertimos, lo unimos al prefijo
+          //    y lo probamos con el oráculo. `.find` se detiene en el primero.
+          sufijosAlReves.map(sufijoReves => prefijo ++ sufijoReves.reverse).find(o)
+        }
+
+        // Devolvemos el primer resultado exitoso que se encuentre.
+        // .find(_.isDefined) encuentra el primer Some(...)
+        // .flatten convierte Some(Some(cadena)) a Some(cadena)
+        resultados.find(_.isDefined).flatten
+
+      } else {
+        // --- PASO RECURSIVO: DIVIDIR Y VENCER EN PARALELO ---
+
+        // Dividimos la lista de prefijos a la mitad
+        val (mitad1, mitad2) = prefijos.splitAt(prefijos.length / 2)
+
+        // Usamos la primitiva 'parallel' para lanzar las dos búsquedas en paralelo
+        val (resultado1, resultado2) = parallel(
+          findPar(mitad1),
+          findPar(mitad2)
+        )
+
+        // Devolvemos el primer resultado que se haya encontrado.
+        resultado1.orElse(resultado2)
+      }
+    }
+
+    // --- LLAMADA INICIAL ---
+
+    if (n == 0) {
+      if (o(Seq.empty)) Seq.empty else Seq.empty[Char]
+    } else {
+      // Empezamos la búsqueda paralela dividiendo el trabajo por el primer carácter.
+      val prefijosIniciales = alfabeto.map(c => Seq(c))
+      findPar(prefijosIniciales).getOrElse(Seq.empty[Char])
+    }
+  }
 
   // Versión paralela mejorada
   def reconstruirCadenaMejoradoPar(umbral: Int)(n: Int, o: Oraculo): Seq[Char] = {

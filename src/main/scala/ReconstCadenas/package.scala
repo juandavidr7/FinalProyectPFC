@@ -4,25 +4,25 @@ import scala.annotation.tailrec
 
 
 package object ReconstCadenas {
-
   // Solucion ingenua
   def reconstruirCadenaIngenuo(n: Int, o: Oraculo): Seq[Char] = {
-    // Genera todas las cadenas de longitud exactamente n sobre el alfabeto
-    val candidatos: Seq[Seq[Char]] =
-      (1 to n).foldLeft(Seq(Seq.empty[Char])) { (acc, _) =>
+    def generarCadenas(k: Int): LazyList[Vector[Char]] = {
+      if (k == 0) {
+        LazyList(Vector.empty[Char])
+      } else {
+        val prefijos: LazyList[Vector[Char]] = generarCadenas(k - 1)
         for {
-          prefijo <- acc
-          c <- alfabeto
-        } yield prefijo :+ c
+          prefijo <- prefijos   // Por cada prefijo de longitud k-1...
+          char <- alfabeto      // ...y por cada carácter del alfabeto...
+        } yield {
+          prefijo :+ char
+        }
       }
-
-    // Busca la primera cadena aceptada por el oráculo
-    candidatos.find(o) match {
-      case Some(cadena) => cadena
-      case None => Seq.empty[Char]
     }
+    val candidatos: LazyList[Vector[Char]] = generarCadenas(n)
+    val resultado: Option[Vector[Char]] = candidatos.find(o)
+    resultado.getOrElse(Seq.empty[Char])
   }
-
 
   // Solucion mejorada
   def reconstruirCadenaMejorado(n: Int, o: Oraculo): Seq[Char] = {
@@ -49,143 +49,141 @@ package object ReconstCadenas {
   }
 
 
-  // Solucion turbo
+  // VERSIÓN CORREGIDA de reconstruirCadenaTurbo
   def reconstruirCadenaTurbo(n: Int, o: Oraculo): Seq[Char] = {
-    // Comprobación de que la longitud es una potencia de 2 y positiva
-    require(n > 0 && (n & (n - 1)) == 0, "La longitud n debe ser una potencia de 2 y mayor que 0")
+    require(n > 0 && (n & (n - 1)) == 0, "...")
 
-    val subcadenasValidasLongitudUno: Set[Seq[Char]] = Oraculo.alfabeto.map(Seq(_)).filter(s => o(s)).toSet
-
-    if (n == 1) {
-      // Si n es 1, y después de filtrar el alfabeto, no queda ninguna subcadena válida de longitud 1,
-      // entonces algo está mal (o la cadena secreta no usa caracteres del alfabeto provisto).
-      if (subcadenasValidasLongitudUno.isEmpty) {
-        throw new RuntimeException("No se encontró ninguna subcadena válida de longitud 1 a partir del alfabeto. No se puede reconstruir.")
-      }
-      // Si no está vacío, cualquier elemento es la respuesta (ya que solo buscamos longitud 1).
-      // .head tomará el primer (y en este caso, único esperado) elemento.
-      return subcadenasValidasLongitudUno.head
-    }
-
-    // 'subcadenasValidasAnteriores' son las SCk/2
-    @tailrec
-    def internal_turbo(subcadenasValidasAnteriores: Set[Seq[Char]], k: Int): Seq[Char] = {
-
-      if (k > n) {
-        subcadenasValidasAnteriores.find(_.length == n) match {
-          case Some(sol) => return sol
-          case None => throw new RuntimeException("No se encontró solución")
-        }
-      }
-
-      val candidatos = for {
-        s1 <- subcadenasValidasAnteriores
-        s2 <- subcadenasValidasAnteriores
+    @annotation.tailrec
+    def construirCandidatos(k: Int, scK_div_2: Seq[Seq[Char]]): Seq[Char] = {
+      // 1. Generar candidatos a partir de las subcadenas del nivel anterior (k/2)
+      val candidatosK = for {
+        s1 <- scK_div_2
+        s2 <- scK_div_2
       } yield s1 ++ s2
 
-      // Primero, buscamos si la solución ya está en los candidatos.
-      //option se usa para casos donde son soluciones opcionales, lo impolementé aquí para que no de errores en el bucle ni nada por el estilo
-      val solucionOpt: Option[Seq[Char]] = candidatos.find { cadenaCandidata =>
-        cadenaCandidata.length == n && o(cadenaCandidata)
-      }
+      // 2. Filtrar con el oráculo
+      val scK = candidatosK.filter(o)
 
-      if (solucionOpt.isDefined) {
-        return solucionOpt.get // Si se encuentra la solución aquí pues se retorna inmediatamente, no como lo estaba haciendo antes xd
+      // 3. Comprobar si hemos encontrado la solución
+      if (k == n) {
+        scK.headOption.getOrElse(throw new RuntimeException(s"No se encontró solución de longitud $n"))
+      } else {
+        // 4. Llamada recursiva: scK se convierte en el conjunto de subcadenas para el siguiente nivel
+        construirCandidatos(k * 2, scK)
       }
-
-      // Si no se encontró la solución final, filtramos los candidatos válidos para la siguiente iteración.
-      //El Set sirve para eliminar cadenas duplicadas y hace todo más sencillo que si hubiera puesto Seq[Seq[Char]] porque tocaría hacer más comprobaciones
-      val conjuntoNuevasSubcadenas: Set[Seq[Char]] = candidatos.filter { cadenaCandidata =>
-        // Aseguramos que solo consideramos cadenas de la longitud actual K para la siguiente etapa, y que son válidas según el oráculo.
-        cadenaCandidata.length == k && o(cadenaCandidata)
-      }
-
-      if (conjuntoNuevasSubcadenas.isEmpty) {
-        throw new RuntimeException("No se encontraron subcadenas válidas de longitud k")
-      }
-
-      internal_turbo(conjuntoNuevasSubcadenas, k * 2)
     }
 
-    internal_turbo(subcadenasValidasLongitudUno, 2)
+    // Nivel base: Encontrar todas las subcadenas válidas de longitud 1
+    val sc1 = Oraculo.alfabeto.map(Seq(_)).filter(o)
+    if (n == 1) sc1.head
+    else construirCandidatos(2, sc1)
   }
 
 
-  // Solucion turbo mejorada
-//  def reconstruirCadenaTurboMejorada(n: Int, o: Oraculo): Seq[Char] = {
-//    // Usa la propiedad de que si s = s1 ++ s2 entonces s1 y s2 también son subsecuencias de s
-//    // Usa el filtro para ir más rápido
-//    // n debe ser potencia de 2
-//    ???
-//  }
+  // VERSIÓN CORREGIDA de reconstruirCadenaTurboMejorada
+  def reconstruirCadenaTurboMejorada(n: Int, o: Oraculo): Seq[Char] = {
+    require(n > 0 && (n & (n - 1)) == 0, "...")
+
+    // La función filtrar ahora espera un Set para búsquedas eficientes
+    def filtrar(scPrevSeq: Seq[Seq[Char]], scPrevSet: Set[Seq[Char]], halfLen: Int): Seq[Seq[Char]] = {
+      for {
+        s1 <- scPrevSeq
+        s2 <- scPrevSeq
+        combined = s1 ++ s2
+        subcadenas = combined.sliding(halfLen).toSeq
+        // ¡Esta comprobación ahora es O(1) en promedio!
+        esValido = subcadenas.forall(sub => scPrevSet.contains(sub))
+        if esValido
+      } yield combined
+    }
+
+    @annotation.tailrec
+    def build(k: Int, scK_div_2: Set[Seq[Char]]): Seq[Char] = {
+      val scPrevSeq = scK_div_2.toSeq
+      val candidatos = filtrar(scPrevSeq, scK_div_2, k / 2)
+      val scK = candidatos.filter(o)
+
+      if (k == n) {
+        scK.headOption.getOrElse(throw new RuntimeException(s"No se encontró solución de longitud $n"))
+      } else {
+        build(k * 2, scK.toSet)
+      }
+    }
+
+    val sc1 = Oraculo.alfabeto.map(Seq(_)).filter(o).toSet
+    if (n == 1) sc1.head
+    else build(2, sc1)
+  }
 
 
-  // Version mejorada del algoritmo turbo que usa arboles de sufijos para acelerar el proceso
+
   def reconstruirCadenaTurboAcelerada(n: Int, o: Oraculo): Seq[Char] = {
-    // Verificamos que n sea potencia de 2 y mayor que 0
+    // Verificación de precondición
     require(n > 0 && (n & (n - 1)) == 0, "La longitud n debe ser una potencia de 2 y mayor que 0")
 
-    // Primero obtenemos todas las cadenas validas de longitud 1
-    val subcadenasValidasLongitudUno = Oraculo.alfabeto.map(Seq(_)).filter(s => o(s)).toSeq
-
-    // Si se busca una cadena de longitud 1 se devuelve la primera que encontramos
-    if (n == 1) {
-      if (subcadenasValidasLongitudUno.isEmpty) {
-        throw new RuntimeException("No se encontro ninguna subcadena valida de longitud 1.")
-      }
-      return subcadenasValidasLongitudUno.head
+    /**
+     * Filtra los candidatos usando el principio "a priori".
+     * En lugar de un Set, ahora usa un Trie para verificar la validez de las subcadenas.
+     * @param scPrevSeq Las subcadenas válidas del nivel anterior.
+     * @param scPrevTrie El Trie que contiene las mismas subcadenas para búsqueda rápida.
+     * @param halfLen La longitud de las subcadenas a verificar (k/2).
+     * @return Una secuencia de candidatos pre-filtrados.
+     */
+    def filtrarConTrie(scPrevSeq: Seq[Seq[Char]], scPrevTrie: Trie, halfLen: Int): Seq[Seq[Char]] = {
+      for {
+        s1 <- scPrevSeq
+        s2 <- scPrevSeq
+        candidato = s1 ++ s2
+        // Genera todas las subcadenas de longitud halfLen que se superponen
+        subcadenas = candidato.sliding(halfLen).toSeq
+        // ¡La clave! Verifica que cada subcadena exista en el Trie.
+        // Esta operación es muy eficiente.
+        esValido = subcadenas.forall(sub => ArbolSufijos.pertenece(sub, scPrevTrie))
+        if esValido
+      } yield candidato
     }
 
-    // Creamos un arbol de sufijos con las cadenas de longitud 1 para optimizar busquedas
-    val arbolSufijosInicial = ArbolSufijos.arbolDeSufijos(subcadenasValidasLongitudUno)
-
-    // Funcion recursiva que va construyendo cadenas cada vez mas largas
     @annotation.tailrec
-    def internal_turbo_acelerada(subcadenasValidasAnteriores: Seq[Seq[Char]], trieAnterior: ArbolSufijos.Trie, k: Int): Seq[Char] = {
+    def build(k: Int, scK_div_2_seq: Seq[Seq[Char]], scK_div_2_trie: Trie): Seq[Char] = {
+      // 1. Generar candidatos pre-filtrados usando el Trie del nivel anterior.
+      val candidatos = filtrarConTrie(scK_div_2_seq, scK_div_2_trie, k / 2)
 
-      // Si k es mayor que n buscamos la solucion en las cadenas que ya tenemos
-      if (k > n) {
-        subcadenasValidasAnteriores.find(_.length == n) match {
-          case Some(sol) => return sol
-          case None => throw new RuntimeException(s"No se encontro solucion de longitud $n.")
+      // 2. Preguntar al oráculo solo sobre los candidatos prometedores.
+      // Usamos toSet para eliminar duplicados eficientemente antes de filtrar.
+      val scK_seq = candidatos.toSet.toSeq.filter(o)
+
+      // 3. Comprobar si hemos llegado a la solución.
+      if (k == n) {
+        scK_seq.headOption.getOrElse(throw new RuntimeException(s"No se pudo reconstruir la cadena de longitud $n"))
+      } else {
+        // Si no hay subcadenas válidas para el siguiente nivel, no hay solución.
+        if (scK_seq.isEmpty) {
+          throw new RuntimeException(s"No se encontraron subcadenas válidas de longitud $k para continuar.")
         }
+        // 4. Construir el Trie para el siguiente nivel y llamar recursivamente.
+        val scK_trie = ArbolSufijos.arbolDeSufijos(scK_seq)
+        build(k * 2, scK_seq, scK_trie)
       }
-
-      // Generamos nuevos candidatos combinando las subcadenas validas anteriores
-      val candidatos = for {
-        s1 <- subcadenasValidasAnteriores
-        s2 <- subcadenasValidasAnteriores
-      } yield s1 ++ s2
-
-      // Comprobamos si ya tenemos la solucion entre los candidatos
-      val solucionOpt = candidatos.find(cand => cand.length == n && o(cand))
-
-      solucionOpt match {
-        case Some(solucionEncontrada) => return solucionEncontrada
-        case None => // No se encuentra la solucion se sigue con el algoritmo
-      }
-
-      // Filtramos los candidatos para quedarnos con las subcadenas validas de longitud k
-      val nuevasSubcadenasValidas = candidatos.filter { cand =>
-        cand.length == k && o(cand)
-      }.foldLeft(Seq.empty[Seq[Char]]) { (acc, elem) =>
-        if (acc.contains(elem)) acc else acc :+ elem
-      } // Eliminamos duplicados con foldLeft
-
-      // Si no hay subcadenas validas lanzamos una excepcion
-      if (nuevasSubcadenasValidas.isEmpty) {
-        throw new RuntimeException(s"No se encontraron subcadenas validas de longitud $k.")
-      }
-
-      // Creamos un nuevo arbol de sufijos con las subcadenas validas encontradas
-      val nuevoTrie = ArbolSufijos.arbolDeSufijos(nuevasSubcadenasValidas)
-
-      // Llamamos recursivamente a la funcion duplicando la longitud k
-      internal_turbo_acelerada(nuevasSubcadenasValidas, nuevoTrie, k * 2)
     }
 
-    // Iniciamos el proceso con las cadenas de longitud 1 y buscamos cadenas de longitud 2
-    internal_turbo_acelerada(subcadenasValidasLongitudUno, arbolSufijosInicial, 2)
+    // --- Punto de partida del algoritmo ---
+
+    // Nivel base: Encontrar todas las subcadenas válidas de longitud 1.
+    val sc1_seq = Oraculo.alfabeto.map(Seq(_)).filter(o)
+
+    if (sc1_seq.isEmpty) {
+      throw new RuntimeException("No existe ningún carácter válido para iniciar la reconstrucción.")
+    }
+
+    // Si n=1, ya hemos terminado.
+    if (n == 1) {
+      sc1_seq.head
+    } else {
+      // Construir el primer Trie con las cadenas de longitud 1.
+      val sc1_trie = ArbolSufijos.arbolDeSufijos(sc1_seq)
+      // Iniciar la construcción recursiva para encontrar cadenas de longitud 2.
+      build(2, sc1_seq, sc1_trie)
+    }
   }
 
 }

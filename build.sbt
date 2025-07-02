@@ -7,7 +7,12 @@ lazy val root = (project in file("."))
 
     // aquí dentro:
     scalacOptions ++= Seq("-language:implicitConversions", "-deprecation"),
-
+    javaOptions ++= Seq(
+      "-Xmx8G",
+      "-XX:-UseGCOverheadLimit",
+      "-Xms1G",
+      "-XX:+UseG1GC",
+    ),
     libraryDependencies ++= Seq(
       ("com.storm-enroute" %% "scalameter-core"              % "0.21")
         .cross(CrossVersion.for3Use2_13),

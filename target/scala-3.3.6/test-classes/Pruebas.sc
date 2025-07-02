@@ -1,95 +1,151 @@
 import Oraculo._
 import ReconstCadenas._
-import ReconstCadenasPar._
-import common._
-import scala.collection.parallel.CollectionConverters._
+import scala.util.Random
 
-val sec14 = List('a','g','t','t','c','c','a','g','g','a','c','t','a','t','g','c')
-val or14 = crearOraculo(1)(sec14)
-val resultado14 = reconstruirCadenaTurboAcelerada(sec14.length, or14)
-resultado14 == sec14
-
-// Pruebas solución ingenua
-val sec9 = List('g','g','c','a','t','a','c','g')
-val or9 = crearOraculo(1)(sec9)
-val resultado9 = reconstruirCadenaIngenuo(sec9.length, or9)
-resultado9 == sec9
-
-//val sec10 = List('a','t','c','g','g','a','t','c','t','a','g','c','a','g','t','c')
-//val or10 = crearOraculo(1)(sec10)
-//val resultado10 = reconstruirCadenaIngenuo(sec10.length, or10)
-//resultado10 == sec10
-// Aparece este error cuando lo intento probar: java.lang.OutOfMemoryError: Java heap space: failed reallocation of scalar replaced objects.
-// Por esto lo voy a comentar
-
-
-// Pruebas solución ingenua paralela
-//val sec11 = List()
-//val or11 = crearOraculo(1)(sec11)
-//val resultado11 = reconstruirCadenaIngenuoPar(4)(sec11.length, or11)
-//resultado11 == sec11
+// =================================================================================
+// ARCHIVO DE PRUEBAS FUNCIONALES PARA ReconstCadenas
 //
-//val sec12 = List()
-//val or12 = crearOraculo(1)(sec12)
-//val resultado12 = reconstruirCadenaIngenuoPar(8)(sec12.length, or12)
-//resultado12 == sec12
-// Falta la implementacion, pero ya puse la estructura de las pruebas
-
-// Pruebas solución mejorada
-val sec1 = List('c','a','g','t','t','g','a','c')
-val or1 = crearOraculo(1)(sec1)
-val resultado1 = reconstruirCadenaMejorado(sec1.length, or1)
-resultado1 == sec1
-
-val sec2 = List('t','g','a','c','a','t','g','g','c','c','t','a','g','t','a','c')
-val or2 = crearOraculo(1)(sec2)
-val resultado2 = reconstruirCadenaMejorado(sec2.length, or2)
-resultado2 == sec2
+// Estructura:
+// 1. Herramientas de Prueba: Funciones para generar datos y verificar resultados.
+// 2. Generación de Datos: Creación de secuencias de prueba con nombres claros.
+// 3. Suites de Pruebas: Bloques de pruebas dedicados a cada función,
+//    mostrando su rendimiento de forma progresiva.
+// =================================================================================
 
 
-// Pruebas solución mejorada paralela
-val sec3 = List('g','a','t','c','c','a','g','t')
-val or3 = crearOraculo(1)(sec3)
-val resultado3 = reconstruirCadenaMejoradoPar(4)(sec3.length, or3)
-resultado3 == sec3
+// ---------------------------------------------------------------------------------
+// 1. HERRAMIENTAS DE PRUEBA
+// ---------------------------------------------------------------------------------
 
-val sec8 = List('a','g','c','t','t','a','g','c','g','g','a','c','t','c','a','t')
-val or8 = crearOraculo(1)(sec8)
-val resultado8 = reconstruirCadenaMejoradoPar(8)(sec8.length, or8)
-resultado8 == sec8
+val random = new Random()
+val costoOraculo = 0 // No nos interesa medir el costo del oráculo en estas pruebas
+
+/**
+ * Genera una secuencia aleatoria de una longitud dada.
+ * @param long Longitud de la secuencia a generar.
+ * @return Una secuencia de caracteres aleatoria.
+ */
+def secAlAzar(long: Int): Seq[Char] = {
+  (1 to long).map(_ => alfabeto(random.nextInt(alfabeto.length)))
+}
+
+/**
+ * Función de ayuda para verificar y mostrar el resultado de una prueba de forma clara.
+ * @param nombrePrueba Descripción de la prueba.
+ * @param esperado La secuencia secreta que se debería encontrar.
+ * @param obtenido El resultado de la función de reconstrucción.
+ */
+def verificar(nombrePrueba: String, esperado: Seq[Char], obtenido: Seq[Char]): Unit = {
+  print(f"$nombrePrueba%-50s") // Imprime el nombre de la prueba alineado
+  if (esperado == obtenido) {
+    println(s"ÉXITO. (Longitud: ${obtenido.length})")
+  } else {
+    println(s"FALLO.")
+    println(s"  - Esperado: ${esperado.mkString}")
+    println(s"  - Obtenido: ${obtenido.mkString}")
+  }
+}
+
+// ---------------------------------------------------------------------------------
+// 2. GENERACIÓN DE DATOS DE PRUEBA
+// ---------------------------------------------------------------------------------
+println("Generando secuencias de prueba...")
+
+// --- Secuencias para pruebas de funcionalidad y rendimiento ---
+val sec_n4 = secAlAzar(4)
+val sec_n8 = secAlAzar(8)
+val sec_n16 = secAlAzar(16)
+val sec_n32 = secAlAzar(32)
+val sec_n256 = secAlAzar(256)
+val sec_n512 = secAlAzar(512)
+val sec_n1024 = secAlAzar(1024)
+val sec_n2048 = secAlAzar(2048)
+val sec_n4096 = secAlAzar(4096)
+
+println("Datos generados. Iniciando pruebas...")
 
 
-// Pruebas solución turbo
-val sec4 = List('g','a','t','c','c','a','g','a')
-val or4 = crearOraculo(1)(sec4)
-val resultado4 = reconstruirCadenaTurbo(sec4.length, or4)
-resultado4 == sec4
+// =================================================================================
+// 3. SUITES DE PRUEBAS PROGRESIVAS
+// =================================================================================
 
-val sec6 = List('a','g','t','t','c','c','a','g','g','a','c','t','a','t','g','c')
-val or6 = crearOraculo(1)(sec6)
-val resultado6 = reconstruirCadenaTurbo(sec6.length, or6)
-resultado6 == sec6
+// ---------------------------------------------------------------------------------
+// Pruebas para: reconstruirCadenaIngenuo
+// Objetivo: Demostrar que funciona para n muy pequeños.
+// ---------------------------------------------------------------------------------
+println("\n--- Pruebas para reconstruirCadenaIngenuo ---")
+val oraculo_ingenuo_n4 = crearOraculo(costoOraculo)(sec_n4)
+verificar("Prueba (Ingenuo) con n=4", sec_n4, reconstruirCadenaIngenuo(sec_n4.length, oraculo_ingenuo_n4))
+
+val oraculo_ingenuo_n8 = crearOraculo(costoOraculo)(sec_n8)
+verificar("Prueba (Ingenuo) con n=8", sec_n8, reconstruirCadenaIngenuo(sec_n8.length, oraculo_ingenuo_n8))
+println("-> 'Ingenuo' es inviable para n > 10.")
+
+// ---------------------------------------------------------------------------------
+// Pruebas para: reconstruirCadenaMejorado
+// Objetivo: Demostrar que es una mejora, pero aún no es viable para n grandes.
+// ---------------------------------------------------------------------------------
+println("\n--- Pruebas para reconstruirCadenaMejorado ---")
+val oraculo_mejorado_n16 = crearOraculo(costoOraculo)(sec_n16)
+verificar("Prueba (Mejorado) con n=16", sec_n16, reconstruirCadenaMejorado(sec_n16.length, oraculo_mejorado_n16))
+
+val oraculo_mejorado_n32 = crearOraculo(costoOraculo)(sec_n32)
+verificar("Prueba (Mejorado) con n=32", sec_n32, reconstruirCadenaMejorado(sec_n32.length, oraculo_mejorado_n32))
+println("-> 'Mejorado' es inviable para n > 32-64 debido a su complejidad espacial.")
+
+// ---------------------------------------------------------------------------------
+// Pruebas para: reconstruirCadenaTurbo
+// Objetivo: Demostrar su viabilidad en tamaños medianos.
+// ---------------------------------------------------------------------------------
+println("\n--- Pruebas para reconstruirCadenaTurbo ---")
+val oraculo_turbo_n256 = crearOraculo(costoOraculo)(sec_n256)
+verificar("Prueba (Turbo) con n=256", sec_n256, reconstruirCadenaTurbo(sec_n256.length, oraculo_turbo_n256))
+
+val oraculo_turbo_n512 = crearOraculo(costoOraculo)(sec_n512)
+verificar("Prueba (Turbo) con n=512", sec_n512, reconstruirCadenaTurbo(sec_n512.length, oraculo_turbo_n512))
+
+val oraculo_turbo_n1024 = crearOraculo(costoOraculo)(sec_n1024)
+verificar("Prueba (Turbo) con n=1024", sec_n1024, reconstruirCadenaTurbo(sec_n1024.length, oraculo_turbo_n1024))
+
+val oraculo_turbo_n2048 = crearOraculo(costoOraculo)(sec_n2048)
+verificar("Prueba (Turbo) con n=2048", sec_n2048, reconstruirCadenaTurbo(sec_n2048.length, oraculo_turbo_n2048))
+
+// ---------------------------------------------------------------------------------
+// Pruebas para: reconstruirCadenaTurboMejorada
+// Objetivo: Demostrar su eficiencia superior en tamaños grandes.
+// ---------------------------------------------------------------------------------
+println("\n--- Pruebas para reconstruirCadenaTurboMejorada ---")
+val oraculo_turboM_n256 = crearOraculo(costoOraculo)(sec_n256)
+verificar("Prueba (TurboMejorada) con n=256", sec_n256, reconstruirCadenaTurboMejorada(sec_n256.length, oraculo_turboM_n256))
+
+val oraculo_turboM_n512 = crearOraculo(costoOraculo)(sec_n512)
+verificar("Prueba (TurboMejorada) con n=512", sec_n512, reconstruirCadenaTurboMejorada(sec_n512.length, oraculo_turboM_n512))
+
+val oraculo_turboM_n1024 = crearOraculo(costoOraculo)(sec_n1024)
+verificar("Prueba (TurboMejorada) con n=1024", sec_n1024, reconstruirCadenaTurboMejorada(sec_n1024.length, oraculo_turboM_n1024))
+
+val oraculo_turboM_n2048 = crearOraculo(costoOraculo)(sec_n2048)
+verificar("Prueba (TurboMejorada) con n=2048", sec_n2048, reconstruirCadenaTurboMejorada(sec_n2048.length, oraculo_turboM_n2048))
+
+// ---------------------------------------------------------------------------------
+// Pruebas para: reconstruirCadenaTurboAcelerada
+// Objetivo: Demostrar que es la versión más performante y escala a tamaños muy grandes.
+// ---------------------------------------------------------------------------------
+println("\n--- Pruebas para reconstruirCadenaTurboAcelerada ---")
+val oraculo_turboA_n256 = crearOraculo(costoOraculo)(sec_n256)
+verificar("Prueba (TurboAcelerada) con n=256", sec_n256, reconstruirCadenaTurboAcelerada(sec_n256.length, oraculo_turboA_n256))
+
+val oraculo_turboA_n512 = crearOraculo(costoOraculo)(sec_n512)
+verificar("Prueba (TurboAcelerada) con n=512", sec_n512, reconstruirCadenaTurboAcelerada(sec_n512.length, oraculo_turboA_n512))
+
+val oraculo_turboA_n1024 = crearOraculo(costoOraculo)(sec_n1024)
+verificar("Prueba (TurboAcelerada) con n=1024", sec_n1024, reconstruirCadenaTurboAcelerada(sec_n1024.length, oraculo_turboA_n1024))
+
+val oraculo_turboA_n2048 = crearOraculo(costoOraculo)(sec_n2048)
+verificar("Prueba (TurboAcelerada) con n=2048", sec_n2048, reconstruirCadenaTurboAcelerada(sec_n2048.length, oraculo_turboA_n2048))
+
+val oraculo_turboA_n4096 = crearOraculo(costoOraculo)(sec_n4096)
+verificar("Prueba (TurboAcelerada) con n=4096", sec_n4096, reconstruirCadenaTurboAcelerada(sec_n4096.length, oraculo_turboA_n4096))
 
 
-//Pruebas solución turbo paralela
-val sec5 = List('a','t','g','g','c','a','a','t')
-val or5 = crearOraculo(1)(sec5)
-val resultado5 = reconstruirCadenaTurboPar(4)(sec5.length, or5)
-resultado5 == sec5
-
-val sec7 = List('g','c','a','t','a','g','g','t','t','c','a','a','g','t','c','c')
-val or7 = crearOraculo(1)(sec7)
-val resultado7 = reconstruirCadenaTurboPar(8)(sec7.length, or7)
-resultado7 == sec7
-
-
-// Pruebas solución turbo acelerada
-val sec12 = List('g', 'a', 't', 'c', 'a', 'a', 'g', 'a')
-val or12 = crearOraculo(1)(sec12)
-val resultado12 = reconstruirCadenaTurboAcelerada(sec12.length, or12)
-resultado12 == sec12
-
-val sec14 = List('a','g','t','t','c','c','a','g','g','a','c','t','a','t','g','c')
-val or14 = crearOraculo(1)(sec14)
-val resultado14 = reconstruirCadenaTurboAcelerada(sec14.length, or14)
-resultado14 == sec14
+println("\n--- Fin de las pruebas ---")

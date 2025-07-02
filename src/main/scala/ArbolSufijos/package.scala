@@ -1,112 +1,73 @@
 package object ArbolSufijos {
 
-  // Definiendo otra estructura para manipular Seq[Seq[Char]]
-  abstract class Trie
-
-  case class Nodo(car: Char, marcada: Boolean, hijos: List[Trie]) extends Trie
-  case class Hoja(car: Char, marcada: Boolean) extends Trie
-
-  def raiz(t: Trie): Char = t match {
-    case Nodo(c, _, _) => c
-    case Hoja(c, _)    => c
-  }
-
-  def cabezas(t: Trie): Seq[Char] = t match {
-    case Nodo(_, _, lt) => lt.map(t => raiz(t))
-    case Hoja(c, _)      => Seq[Char](c)
-  }
-
+  /**
+   * Un diseño de Trie más robusto y estándar.
+   * Un Trie es un mapa de caracteres a otros Tries (sub-árboles),
+   * y un booleano que indica si este nodo marca el final de una palabra.
+   */
+  case class Trie(
+                   hijos: Map[Char, Trie] = Map.empty,
+                   esFinDePalabra: Boolean = false
+                 )
 
   /**
-   * Devuelve true si la secuencia s es reconocida por el trie t, y false si no.
-   * La búsqueda asume que 't' es un nodo raíz (dummy) y la secuencia 's' se busca en sus hijos.
-   * @param s La secuencia de caracteres a buscar.
-   * @param t El trie en el que se busca.
-   * @return Boolean indicando si la secuencia pertenece al trie.
+   * Devuelve true si la secuencia 's' está contenida en el Trie 't'.
+   * @param s La secuencia a buscar.
+   * @param t El Trie donde buscar.
+   * @return Boolean indicando si la secuencia pertenece al Trie.
    */
+  @annotation.tailrec
   def pertenece(s: Seq[Char], t: Trie): Boolean = {
-    @annotation.tailrec
-    def busquedaRec(sec: Seq[Char], trieActual: Trie): Boolean = {
-      if (sec.isEmpty) {
-        // Si ya consumimos toda la secuencia, devolvemos si el nodo final esta marcado.
-        trieActual match {
-          case Nodo(_, marcada, _) => marcada
-          case Hoja(_, marcada)    => marcada
-        }
-      } else {
-        trieActual match {
-          case Hoja(_, _) => false // Si es hoja pero la secuencia sigue, ya no hay coincidencia.
-          case Nodo(_, _, hijos) =>
-            // Buscamos si hay un hijo con el caracter buscado.
-            hijos.find(hijo => raiz(hijo) == sec.head) match {
-              case Some(subTrie) => busquedaRec(sec.tail, subTrie)
-              case None          => false
-            }
-        }
+    if (s.isEmpty) {
+      // Si la secuencia se ha consumido, el resultado depende de si el nodo actual
+      // está marcado como el final de una palabra.
+      t.esFinDePalabra
+    } else {
+      // Buscamos el carácter actual en los hijos del nodo actual.
+      t.hijos.get(s.head) match {
+        // Si el hijo existe, continuamos la búsqueda recursivamente con el resto de la secuencia.
+        case Some(subTrie) => pertenece(s.tail, subTrie)
+        // Si no existe, la secuencia no está en el Trie.
+        case None => false
       }
     }
-    // Arrancamos la busqueda en el trie con la secuencia dada.
-    busquedaRec(s, t)
   }
 
-
   /**
-   * Adiciona una secuencia de uno o más caracteres a un trie de forma inmutable.
+   * Adiciona una secuencia 's' a un Trie 't' de forma inmutable.
    * @param s La secuencia a añadir.
-   * @param t El trie al cual se añade la secuencia.
+   * @param t El Trie al cual se añade la secuencia.
    * @return Un nuevo Trie con la secuencia añadida.
    */
   def adicionar(s: Seq[Char], t: Trie): Trie = {
-
-    // Esta aux crea el camino de nodos u hojas para la nueva secuencia.
-    def construirCamino(camino: Seq[Char]): Trie = camino.toList match {
-      case h :: Nil => Hoja(h, marcada = true) // Si llega al ultimo caracter, marcamos hoja.
-      case h :: r   => Nodo(h, marcada = false, List(construirCamino(r))) // Seguimos construyendo el camino.
-      case Nil      => t // Este caso no deberia pasar.
-    }
-
     if (s.isEmpty) {
-      // Si recibimos vacio, solo marcamos el nodo actual.
-      t match {
-        case Nodo(c, _, h) => Nodo(c, marcada = true, h)
-        case Hoja(c, _)    => Hoja(c, marcada = true)
-      }
+      // Si la secuencia se ha consumido, creamos una copia del nodo actual
+      // pero marcándolo como final de palabra.
+      t.copy(esFinDePalabra = true)
     } else {
-      t match {
-        // Si es una hoja pero hay que agregar mas, la pasamos a nodo con la rama que falta.
-        case Hoja(c, m) => Nodo(c, m, List(construirCamino(s)))
-        case Nodo(c, m, hijos) =>
-          val charActual = s.head
-          val restoSecuencia = s.tail
+      val charActual = s.head
+      val restoSecuencia = s.tail
 
-          hijos.find(hijo => raiz(hijo) == charActual) match {
-            case Some(subTrie) =>
-              // El hijo ya existe, agregamos lo que falta de la secuencia recursivamente.
-              val nuevoSubTrie = adicionar(restoSecuencia, subTrie)
-              // Actualizamos la lista de hijos reemplazando el viejo por el nuevo.
-              val nuevosHijos = hijos.map(hijo => if (raiz(hijo) == charActual) nuevoSubTrie else hijo)
-              Nodo(c, m, nuevosHijos)
-            case None =>
-              // Si el hijo no existe, creamos todo el camino y lo agregamos como rama nueva.
-              val nuevaRama = construirCamino(s)
-              Nodo(c, m, nuevaRama :: hijos)
-          }
-      }
+      // Obtenemos el sub-árbol para el carácter actual, o un Trie vacío si no existe.
+      val subTrieExistente = t.hijos.getOrElse(charActual, Trie())
+
+      // Adicionamos recursivamente el resto de la secuencia al sub-árbol.
+      val nuevoSubTrie = adicionar(restoSecuencia, subTrieExistente)
+
+      // Creamos una copia del Trie actual, actualizando el mapa de hijos
+      // con el sub-árbol modificado.
+      t.copy(hijos = t.hijos + (charActual -> nuevoSubTrie))
     }
   }
 
-
   /**
-   * Dada una secuencia no vacía de secuencias, devuelve el árbol de sufijos asociado.
-   * @param ss La colección de secuencias (palabras) para construir el árbol.
+   * Construye un Trie a partir de una colección de secuencias.
+   * @param ss La colección de secuencias (palabras).
    * @return El Trie que contiene todas las secuencias.
    */
   def arbolDeSufijos(ss: Seq[Seq[Char]]): Trie = {
-    // 1. Creamos un nodo raíz con valor nulo
-    val arbolVacio: Trie = Nodo(' ', marcada = false, List())
-
-    // 2. Usamos foldLeft para iterar sobre cada secuencia y añadirla al arbol.
-    // 'trieActual' es el arbol acumulado, y 'secuencia' es el siguiente elemento de 'ss'.
-    ss.foldLeft(arbolVacio)((trieActual, secuencia) => adicionar(secuencia, trieActual))
+    // Empezamos con un Trie vacío y vamos añadiendo cada secuencia
+    // usando foldLeft para mantener la inmutabilidad.
+    ss.foldLeft(Trie())((trieActual, secuencia) => adicionar(secuencia, trieActual))
   }
 }
