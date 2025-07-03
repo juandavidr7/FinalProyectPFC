@@ -75,6 +75,11 @@ def pruebasIngenuo(ss: Seq[Seq[Char]]): Seq[(Seq[Char], Seq[Char])] = for {
   o = crearOraculo(costoOraculo)(s)
 } yield (s, reconstruirCadenaIngenuo(s.length, o))
 
+def pruebasIngenuo1(ss: Seq[Seq[Char]]): Seq[(Seq[Char], Seq[Char])] = for {
+  s <- ss
+  o = crearOraculo(costoOraculo)(s)
+} yield (s, reconstruirCadenaIngenuo1(s.length, o))
+
 /**
  * Ejecuta la reconstrucción mejorada para una colección de secuencias.
  * @return Una secuencia de tuplas (longitud, esperado, obtenido).
@@ -141,6 +146,11 @@ println("Datos generados. Iniciando pruebas...")
 // ---------------------------------------------------------------------------------
 println("\n--- Pruebas para reconstruirCadenaIngenuo ---")
 val resultadosIngenuo = pruebasIngenuo(secsCortas)
+for ((esperado, obtenido) <- resultadosIngenuo) {
+  verificar(s"Prueba (Ingenuo) con n=${esperado.length}", esperado, obtenido)
+}
+
+val resultadosIngenuo1 = pruebasIngenuo1(secsCortas)
 for ((esperado, obtenido) <- resultadosIngenuo) {
   verificar(s"Prueba (Ingenuo) con n=${esperado.length}", esperado, obtenido)
 }
