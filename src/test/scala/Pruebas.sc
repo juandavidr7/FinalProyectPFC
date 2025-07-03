@@ -1,189 +1,118 @@
+// Guardar como Pruebas.scala
 import Oraculo._
 import ReconstCadenas._
+import ReconstCadenasPar._
+import scala.util.{Try, Success, Failure}
 import scala.util.Random
 
 // =================================================================================
-// ARCHIVO DE PRUEBAS FUNCIONALES PARA ReconstCadenas
-//
-// Estructura:
-// 1. Herramientas de Prueba: Funciones para generar datos y verificar resultados.
-// 2. Generación de Datos: Creación de secuencias de prueba con nombres claros.
-// 3. Suites de Pruebas: Bloques de pruebas dedicados a cada función,
-//    mostrando su rendimiento de forma progresiva.
+// ARCHIVO DE PRUEBAS, BENCHMARK Y COMPARATIVA DE SPEEDUP (CON COSTE DE ORÁCULO DINÁMICO)
 // =================================================================================
-
 
 // ---------------------------------------------------------------------------------
 // 1. HERRAMIENTAS DE PRUEBA
 // ---------------------------------------------------------------------------------
 
 val random = new Random()
-val costoOraculo = 0 // No nos interesa medir el costo del oráculo en estas pruebas
 
-/**
- * Genera una secuencia aleatoria de una longitud dada.
- * @param long Longitud de la secuencia a generar.
- * @return Una secuencia de caracteres aleatoria.
- */
 def secAlAzar(long: Int): Seq[Char] = {
-  // Asegurarse de que la longitud no sea negativa
   val longitudValida = math.max(0, long)
   (1 to longitudValida).map(_ => alfabeto(random.nextInt(alfabeto.length)))
 }
 
-/**
- * Función de ayuda para verificar y mostrar el resultado de una prueba de forma clara.
- * @param nombrePrueba Descripción de la prueba.
- * @param esperado La secuencia secreta que se debería encontrar.
- * @param obtenido El resultado de la función de reconstrucción.
- */
-def verificar(nombrePrueba: String, esperado: Seq[Char], obtenido: Seq[Char]): Unit = {
-  print(f"$nombrePrueba%-50s") // Imprime el nombre de la prueba alineado
-  if (esperado == obtenido) {
-    println(s"ÉXITO. (Longitud: ${obtenido.length})")
-  } else {
-    println(s"FALLO.")
-    println(s"  - Esperado: ${esperado.mkString}")
-    println(s"  - Obtenido: ${obtenido.mkString}")
+def medirTiempo[A](block: => A): (A, Double) = {
+  val t0 = System.nanoTime()
+  val resultado = block
+  val t1 = System.nanoTime()
+  val tiempoMs = (t1 - t0) / 1e6
+  (resultado, tiempoMs)
+}
+
+// ---------------------------------------------------------------------------------
+// 2. FUNCIÓN PRINCIPAL DE COMPARACIÓN Y VERIFICACIÓN
+// ---------------------------------------------------------------------------------
+
+def compararYVerificar(
+                        nombreAlgo: String,
+                        secuencias: Seq[Seq[Char]],
+                        fnSec: (Int, Oraculo) => Seq[Char],
+                        fnPar: (Int, Oraculo) => Seq[Char]
+                      ): Unit = {
+
+  println(s"\n--- Comparativa: $nombreAlgo vs. ${nombreAlgo}Par ---")
+  println(f"${"n"}%-8s ${"T. Sec (ms)"}%-15s ${"T. Par (ms)"}%-15s ${"Speedup"}%-12s ${"Costo"}%-8s ${"Resultado"}%-10s")
+  println("-" * 80)
+
+  for (s <- secuencias) {
+    val n = s.length
+
+    // --- LÓGICA DE COSTE DINÁMICO ---
+    // Determinar el costo del oráculo para evitar tiempos de ejecución excesivos en pruebas grandes,
+    // pero manteniendo un coste realista para las pequeñas.
+    val costoOraculo = nombreAlgo match {
+      case "Ingenuo" if n > 12 => 0
+      case "Mejorado" if n > 18 => 0
+      case "Turbo" | "TurboMejorada" | "TurboAcelerada" if n > 1024 => 0
+      case _ => 1 // Costo por defecto para el resto de casos
+    }
+
+    val o = crearOraculo(costoOraculo)(s)
+
+    val resSec = Try(medirTiempo(fnSec(n, o)))
+    val resPar = Try(medirTiempo(fnPar(n, o)))
+
+    (resSec, resPar) match {
+      case (Success((obtenidoSec, tSec)), Success((obtenidoPar, tPar))) =>
+        val speedup = if (tPar > 0) tSec / tPar else 0.0
+        val verifSec = obtenidoSec == s
+        val verifPar = obtenidoPar == s
+
+        val estado = (verifSec, verifPar) match {
+          case (true, true)   => "ÉXITO"
+          case (true, false)  => "FALLO (Par)"
+          case (false, true)  => "FALLO (Sec)"
+          case (false, false) => "FALLO (Ambos)"
+        }
+
+        print(f"$n%-8d ${tSec}%-15.4f ${tPar}%-15.4f ${speedup}%-11.2fx ${costoOraculo}%-8d ${estado}%-10s")
+        if (!verifSec || !verifPar) {
+          println()
+          if (!verifSec) println(s"  - Sec: Esperado=${s.mkString}, Obtenido=${obtenidoSec.mkString}")
+          if (!verifPar) println(s"  - Par: Esperado=${s.mkString}, Obtenido=${obtenidoPar.mkString}")
+        } else {
+          println()
+        }
+
+      case (Failure(e), _) =>
+        println(f"$n%-8d ${"ERROR (Sec)"}%-15s ${"---"}%-15s ${"---"}%-12s ${costoOraculo}%-8d ${"FALLO"}%-10s")
+        println(s"  - Excepción en Secuencial: ${e.getMessage}")
+      case (_, Failure(e)) =>
+        println(f"$n%-8d ${"---"}%-15s ${"ERROR (Par)"}%-15s ${"---"}%-12s ${costoOraculo}%-8d ${"FALLO"}%-10s")
+        println(s"  - Excepción en Paralelo: ${e.getMessage}")
+    }
   }
 }
 
 // =================================================================================
-// INICIO DE LAS FUNCIONES IMPLEMENTADAS
+// 3. EJECUCIÓN DE LAS PRUEBAS Y BENCHMARKS
 // =================================================================================
 
-/**
- * Genera secuencias de prueba de longitudes cortas y secuenciales (1, 2, 3, ... n).
- */
-def secsCortasParaPruebas(n: Int): Seq[Seq[Char]] = for {
-  i <- 1 to n
-} yield secAlAzar(i)
-
-/**
- * Genera secuencias de prueba de longitudes exponenciales (2, 4, 8, ... 2^n).
- */
-def secsLargasParaPruebas(n: Int): Seq[Seq[Char]] = for {
-  i <- 1 to n
-} yield secAlAzar(math.pow(2, i).toInt)
-
-/**
- * Ejecuta la reconstrucción ingenua para una colección de secuencias.
- * @return Una secuencia de tuplas (esperado, obtenido).
- */
-def pruebasIngenuo(ss: Seq[Seq[Char]]): Seq[(Seq[Char], Seq[Char])] = for {
-  s <- ss
-  o = crearOraculo(costoOraculo)(s)
-} yield (s, reconstruirCadenaIngenuo(s.length, o))
-
-def pruebasIngenuo1(ss: Seq[Seq[Char]]): Seq[(Seq[Char], Seq[Char])] = for {
-  s <- ss
-  o = crearOraculo(costoOraculo)(s)
-} yield (s, reconstruirCadenaIngenuo1(s.length, o))
-
-/**
- * Ejecuta la reconstrucción mejorada para una colección de secuencias.
- * @return Una secuencia de tuplas (longitud, esperado, obtenido).
- */
-def pruebasMejorado(ss: Seq[Seq[Char]]): Seq[(Int, Seq[Char], Seq[Char])] = for {
-  s <- ss
-  o = crearOraculo(costoOraculo)(s)
-} yield (s.length, s, reconstruirCadenaMejorado(s.length, o))
-
-/**
- * Ejecuta la reconstrucción turbo para una colección de secuencias.
- * @return Una secuencia de tuplas (longitud, esperado, obtenido).
- */
-def pruebasTurbo(ss: Seq[Seq[Char]]): Seq[(Int, Seq[Char], Seq[Char])] = for {
-  s <- ss
-  o = crearOraculo(costoOraculo)(s)
-} yield (s.length, s, reconstruirCadenaTurbo(s.length, o))
-
-/**
- * Ejecuta la reconstrucción turbo mejorada para una colección de secuencias.
- * @return Una secuencia de tuplas (longitud, esperado, obtenido).
- */
-def pruebasTurboMejorada(ss: Seq[Seq[Char]]): Seq[(Int, Seq[Char], Seq[Char])] = for {
-  s <- ss
-  o = crearOraculo(costoOraculo)(s)
-} yield (s.length, s, reconstruirCadenaTurboMejorada(s.length, o))
-
-/**
- * Ejecuta la reconstrucción turbo acelerada para una colección de secuencias.
- * @return Una secuencia de tuplas (longitud, esperado, obtenido).
- */
-def pruebasTurboAcelerada(ss: Seq[Seq[Char]]): Seq[(Int, Seq[Char], Seq[Char])] = for {
-  s <- ss
-  o = crearOraculo(costoOraculo)(s)
-} yield (s.length, s, reconstruirCadenaTurboAcelerada(s.length, o))
-
-// =================================================================================
-// FIN DE LAS FUNCIONES IMPLEMENTADAS
-// =================================================================================
-
-
-// ---------------------------------------------------------------------------------
-// 2. GENERACIÓN DE DATOS DE PRUEBA
-// ---------------------------------------------------------------------------------
 println("Generando secuencias de prueba...")
 
-// Secuencias para algoritmos lentos (n pequeño)
-val secsCortas = secsCortasParaPruebas(16) // Genera secuencias de longitud 1 a 16
+val secsCortas = (1 to 13).map(secAlAzar) // Hasta n=15 para Ingenuo
+val secsParaMejorado = (10 to 20 by 2).map(secAlAzar)
+val secsLargas = (4 to 11).map(i => secAlAzar(math.pow(2, i).toInt)) // 16, 32, ..., 4096
 
-// Secuencias para algoritmos rápidos (n grande, potencias de 2)
-// Genera secuencias de longitud 2, 4, 8, 16, 32, 64, ..., 4096
-val secsLargas = secsLargasParaPruebas(12)
+println("Datos generados. Iniciando comparativas...")
+println(s"Usando ${Runtime.getRuntime.availableProcessors()} procesadores para tareas paralelas.")
+println("\nNota: El costo del oráculo se ajusta dinámicamente (0 para n grandes, 1 para n pequeños).")
 
-println("Datos generados. Iniciando pruebas...")
+// --- Ejecutar comparativas para cada par de algoritmos ---
 
+compararYVerificar("Ingenuo", secsCortas, reconstruirCadenaIngenuo, reconstruirCadenaIngenuoPar)
+compararYVerificar("Mejorado", secsParaMejorado, reconstruirCadenaMejorado, reconstruirCadenaMejoradoPar)
+compararYVerificar("Turbo", secsLargas, reconstruirCadenaTurbo, reconstruirCadenaTurboPar)
+compararYVerificar("TurboMejorada", secsLargas, reconstruirCadenaTurboMejorada, reconstruirCadenaTurboMejoradaPar)
+compararYVerificar("TurboAcelerada", secsLargas, reconstruirCadenaTurboAcelerada, reconstruirCadenaTurboAceleradaPar)
 
-// =================================================================================
-// 3. SUITES DE PRUEBAS PROGRESIVAS (Utilizando las nuevas funciones)
-// =================================================================================
-
-// ---------------------------------------------------------------------------------
-// Pruebas para: reconstruirCadenaIngenuo
-// Objetivo: Demostrar que funciona para n muy pequeños.
-// ---------------------------------------------------------------------------------
-println("\n--- Pruebas para reconstruirCadenaIngenuo ---")
-val resultadosIngenuo = pruebasIngenuo(secsCortas)
-for ((esperado, obtenido) <- resultadosIngenuo) {
-  verificar(s"Prueba (Ingenuo) con n=${esperado.length}", esperado, obtenido)
-}
-
-val resultadosIngenuo1 = pruebasIngenuo1(secsCortas)
-for ((esperado, obtenido) <- resultadosIngenuo) {
-  verificar(s"Prueba (Ingenuo) con n=${esperado.length}", esperado, obtenido)
-}
-
-// ---------------------------------------------------------------------------------
-// Pruebas para: reconstruirCadenaMejorado
-// Objetivo: Demostrar que es una mejora, pero aún no es viable para n grandes.
-// ---------------------------------------------------------------------------------
-println("\n--- Pruebas para reconstruirCadenaMejorado ---")
-// Usaremos un subconjunto de las secuencias largas para no tardar demasiado
-val resultadosMejorado = pruebasMejorado(secsLargas.filter(_.length <= 32))
-for ((len, esperado, obtenido) <- resultadosMejorado) {
-  verificar(s"Prueba (Mejorado) con n=$len", esperado, obtenido)
-}
-println("-> 'Mejorado' es inviable para n > 32-64 debido a su complejidad espacial.")
-
-
-// ---------------------------------------------------------------------------------
-// Pruebas para: reconstruirCadenaTurbo y sus mejoras
-// Objetivo: Demostrar su viabilidad y rendimiento en tamaños grandes.
-// ---------------------------------------------------------------------------------
-def ejecutarYVerificarPruebas(nombreAlgo: String, pruebasFunc: Seq[Seq[Char]] => Seq[(Int, Seq[Char], Seq[Char])], secuencias: Seq[Seq[Char]]): Unit = {
-  println(s"\n--- Pruebas para reconstruirCadena$nombreAlgo ---")
-  val resultados = pruebasFunc(secuencias)
-  for ((len, esperado, obtenido) <- resultados) {
-    verificar(s"Prueba ($nombreAlgo) con n=$len", esperado, obtenido)
-  }
-}
-
-// Ejecutamos las pruebas para todas las versiones Turbo con las secuencias largas
-ejecutarYVerificarPruebas("Turbo", pruebasTurbo, secsLargas)
-ejecutarYVerificarPruebas("TurboMejorada", pruebasTurboMejorada, secsLargas)
-ejecutarYVerificarPruebas("TurboAcelerada", pruebasTurboAcelerada, secsLargas)
-
-
-println("\n--- Fin de las pruebas ---")
+println("\n--- Fin de las comparativas ---")

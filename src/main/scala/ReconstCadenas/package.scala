@@ -24,21 +24,21 @@ package object ReconstCadenas {
     resultado.getOrElse(Seq.empty[Char])
   }
 
-  def reconstruirCadenaIngenuo1(n: Int, o: Oraculo): Seq[Char] = {
-    // Genera todas las cadenas de longitud exactamente n sobre el alfabeto
-    val candidatos: Iterator[Seq[Char]] =
-      (1 to n).foldLeft(Iterator(Seq.empty[Char])) { (acc, _) =>
-        for {
-          prefijo <- acc
-          c <- alfabeto.iterator
-        } yield prefijo :+ c
-      }
-    // Busca la primera cadena aceptada por el oráculo
-    candidatos.find(o) match {
-      case Some(cadena) => cadena
-      case None => Seq.empty[Char]
-    }
-  }
+//  def reconstruirCadenaIngenuo1(n: Int, o: Oraculo): Seq[Char] = {
+//    // Genera todas las cadenas de longitud exactamente n sobre el alfabeto
+//    val candidatos: Iterator[Seq[Char]] =
+//      (1 to n).foldLeft(Iterator(Seq.empty[Char])) { (acc, _) =>
+//        for {
+//          prefijo <- acc
+//          c <- alfabeto.iterator
+//        } yield prefijo :+ c
+//      }
+//    // Busca la primera cadena aceptada por el oráculo
+//    candidatos.find(o) match {
+//      case Some(cadena) => cadena
+//      case None => Seq.empty[Char]
+//    }
+//  }
     // Solucion mejorada
     def reconstruirCadenaMejorado(n: Int, o: Oraculo): Seq[Char] = {
 
