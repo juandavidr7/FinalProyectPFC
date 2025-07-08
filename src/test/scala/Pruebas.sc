@@ -50,9 +50,9 @@ def compararYVerificar(
     // Determinar el costo del oráculo para evitar tiempos de ejecución excesivos en pruebas grandes,
     // pero manteniendo un coste realista para las pequeñas.
     val costoOraculo = nombreAlgo match {
-      case "Ingenuo" if n > 12 => 0
-      case "Mejorado" if n > 18 => 0
-      case "Turbo" | "TurboMejorada" | "TurboAcelerada" if n > 1024 => 0
+      case "Ingenuo" if n > 11 => 0
+      case "Mejorado" if n > 22 => 0
+      case "Turbo" | "TurboMejorada" | "TurboAcelerada" if n >= 1024 => 0
       case _ => 1 // Costo por defecto para el resto de casos
     }
 
@@ -100,7 +100,7 @@ def compararYVerificar(
 println("Generando secuencias de prueba...")
 
 val secsCortas = (1 to 13).map(secAlAzar) // Hasta n=15 para Ingenuo
-val secsParaMejorado = (10 to 20 by 2).map(secAlAzar)
+val secsParaMejorado = (10 to 32 by 4).map(secAlAzar)
 val secsLargas = (4 to 11).map(i => secAlAzar(math.pow(2, i).toInt)) // 16, 32, ..., 4096
 
 println("Datos generados. Iniciando comparativas...")
