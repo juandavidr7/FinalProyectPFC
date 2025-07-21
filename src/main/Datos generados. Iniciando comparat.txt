@@ -1,0 +1,97 @@
+Datos generados. Iniciando comparativas...
+Usando 16 procesadores para tareas paralelas.
+
+Nota: El costo del oráculo se ajusta dinámicamente (0 para n grandes, 1 para n pequeños).
+
+
+
+
+--- Comparativa: Ingenuo vs. IngenuoPar ---
+n        T. Sec (ms)     T. Par (ms)     Speedup      Costo    Resultado 
+--------------------------------------------------------------------------------
+1        12,7209         15,9666         0,80       x 1        ÉXITO     
+2        2,3515          4,7087          0,50       x 1        ÉXITO     
+3        71,8324         8,9574          8,02       x 1        ÉXITO     
+4        255,2657        22,5055         11,34      x 1        ÉXITO     
+5        684,5491        78,6035         8,71       x 1        ÉXITO     
+6        1106,8512       291,0187        3,80       x 1        ÉXITO     
+7        12664,0895      1104,6383       11,46      x 1        ÉXITO     
+8        56772,8979      4399,4140       12,90      x 1        ÉXITO     
+9        152928,4850     18298,6820      8,36       x 1        ÉXITO     
+10       352303,9698     72577,2790      4,85       x 1        ÉXITO     
+11       2747192,1566    288928,7267     9,51       x 1        ÉXITO     
+12       9565680,4366    1175876,2933    8,13       x 1        ÉXITO     
+13       77115122,7099   4819422,2246    16,00      x 1        ÉXITO
+
+--- Comparativa: Mejorado vs. MejoradoPar ---
+n        T. Sec (ms)     T. Par (ms)     Speedup      Costo    Resultado 
+--------------------------------------------------------------------------------
+10       509,5000        656,1574        0,78       x 1        ÉXITO     
+14       358,5631        79,1452         4,53       x 1        ÉXITO     
+18       669,8781        105,5223        6,35       x 1        ÉXITO     
+22       987,9352        151,3072        6,53       x 1        ÉXITO     
+26       1348,9614       168,4142        8,01       x 1        ÉXITO     
+30       1839,8327       220,1308        8,36       x 1        ÉXITO     
+34       37,9941         16,7517         2,27       x 0        ÉXITO     
+38       16,5616         14,7391         1,12       x 0        ÉXITO     
+42       20,1619         18,2041         1,11       x 0        ÉXITO     
+46       11,2587         22,7951         0,49       x 0        ÉXITO     
+50       14,7165         26,7173         0,55       x 0        ÉXITO     
+54       19,0603         33,1851         0,57       x 0        ÉXITO     
+58       23,7079         14,8300         1,60       x 0        ÉXITO     
+62       25,2290         15,0701         1,67       x 0        ÉXITO
+
+--- Comparativa: Turbo vs. TurboPar ---
+n        T. Sec (ms)     T. Par (ms)     Speedup      Costo    Resultado 
+--------------------------------------------------------------------------------
+16       490,7330        71,1287         6,90       x 1        ÉXITO     
+32       2173,8729       192,3278        11,30      x 1        ÉXITO     
+64       10565,1218      794,6792        13,29      x 1        ÉXITO     
+128      56468,3450      4585,4176       12,31      x 1        ÉXITO     
+256      277021,9532     20997,5724      13,19      x 1        ÉXITO     
+512      1324424,3792    110601,3117     11,97      x 1        ÉXITO     
+1024     6436566,6794    567644,1818     11,34      x 1        ÉXITO     
+java.lang.OutOfMemoryError: Java heap space: failed reallocation of scalar replaced objects
+  at scala.collection.immutable.List.$colon$colon$colon(List.scala:116)
+  at scala.collection.immutable.List.appendedAll(List.scala:169)
+  at scala.collection.immutable.List.appendedAll(List.scala:79)
+  at scala.collection.SeqOps.concat(Seq.scala:187)
+  at scala.collection.SeqOps.concat$(Seq.scala:187)
+  at scala.collection.AbstractSeq.concat(Seq.scala:1190)
+  at scala.collection.IterableOps.$plus$plus(Iterable.scala:735)
+  at scala.collection.IterableOps.$plus$plus$(Iterable.scala:735)
+  at scala.collection.AbstractIterable.$plus$plus(Iterable.scala:935)
+  at ReconstCadenas.package$.$anonfun$3$$anonfun$1(package.scala:76)
+  at ReconstCadenas.package$$$Lambda/0x0000028b2fb4c798.apply(Unknown Source)
+  at scala.collection.immutable.List.map(List.scala:251)
+  at scala.collection.immutable.List.map(List.scala:79)
+  at ReconstCadenas.package$.$anonfun$3(package.scala:75)
+  at ReconstCadenas.package$$$Lambda/0x0000028b2fb4c3c8.apply(Unknown Source)
+  at scala.collection.immutable.List.flatMap(List.scala:294)
+  at scala.collection.immutable.List.flatMap(List.scala:79)
+  at ReconstCadenas.package$.construirCandidatos$2(package.scala:74)
+  at ReconstCadenas.package$.reconstruirCadenaTurbo(package.scala:97)
+  at rs$line$19$.$init$$$anonfun$1(rs$line$19:1)
+  at rs$line$19$.$init$$$anonfun$adapted$1(rs$line$19:1)
+  at rs$line$19$$$Lambda/0x0000028b3007f608.apply(Unknown Source)
+  at rs$line$9$.$anonfun$1$$anonfun$1(rs$line$9:27)
+  at rs$line$9$$$Lambda/0x0000028b3007da48.apply(Unknown Source)
+  at rs$line$8$.medirTiempo(rs$line$8:3)
+  at rs$line$9$.$anonfun$1(rs$line$9:27)
+  at rs$line$9$$$Lambda/0x0000028b3007d580.apply(Unknown Source)
+  at scala.util.Try$.apply(Try.scala:217)
+  at rs$line$9$.compararYVerificar$$anonfun$1(rs$line$9:27)
+  at rs$line$9$$$Lambda/0x0000028b3007d178.applyVoid(Unknown Source)
+  at scala.runtime.function.JProcedure1.apply(JProcedure1.java:15)
+  at scala.runtime.function.JProcedure1.apply(JProcedure1.java:10)
+
+--- Comparativa: TurboMejorada vs. TurboMejoradaPar ---
+n        T. Sec (ms)     T. Par (ms)     Speedup      Costo    Resultado 
+--------------------------------------------------------------------------------
+16       1088,7954       146,1686        7,45       x 1        ÉXITO     
+32       382,8404        56,8469         6,73       x 1        ÉXITO     
+64       791,7865        70,0786         11,30      x 1        ÉXITO     
+128      3404,0681       229,5954        14,83      x 1        ÉXITO     
+256      21363,6500      1074,1853       19,89      x 1        ÉXITO     
+512      154674,7594     3534,5317       43,76      x 1        ÉXITO     
+1024     3079031,0434    12925,1981      238,22     x 1        ÉXITO  

@@ -7,32 +7,64 @@ package object ReconstCadenasPar {
 
   // --- INGENUO PARALELO ---
   def reconstruirCadenaIngenuoPar(n: Int, o: Oraculo): Seq[Char] = {
-    if (n == 0) {
-      return if (o(Seq.empty)) Seq.empty else throw new RuntimeException("No hay solución para n=0")
-    }
-
-    def buscarDesdePrefijo(prefijo: Seq[Char]): Option[Seq[Char]] = {
-      def generarSufijos(k: Int): Iterator[Seq[Char]] = {
-        if (k == 0) Iterator(Seq.empty)
-        else for {
-          suf <- generarSufijos(k - 1)
-          c   <- alfabeto.iterator
-        } yield suf :+ c
+    val candidatos: LazyList[Seq[Char]] =
+      (1 to n).foldLeft(LazyList(Seq.empty[Char])) { (acc, _) =>
+        for {
+          prefijo <- acc
+          c <- alfabeto
+        } yield prefijo :+ c
       }
-      generarSufijos(n - prefijo.length)
-        .map(sufijo => prefijo ++ sufijo)
-        .find(o)
-    }
 
-    // probamos en paralelo los cuatro alfabetos iniciales
-    val (resA, resC, resG, resT) = common.parallel(
-      buscarDesdePrefijo(Seq('a')),
-      buscarDesdePrefijo(Seq('c')),
-      buscarDesdePrefijo(Seq('g')),
-      buscarDesdePrefijo(Seq('t'))
+    // 2. Calcula el tamaño de los bloques para la división en 16 partes
+    val numTareas = 16
+    val totalCandidatos = math.pow(alfabeto.length, n).toInt
+    val tamanoBloque = totalCandidatos / numTareas
+
+    // 3. Lanza las 16 tareas en paralelo, anidando las llamadas a `common.parallel`.
+    //    Cada llamada a `find` opera sobre su propio "slice" de la LazyList.
+    val (res_0_3, res_4_7, res_8_11, res_12_15) = common.parallel(
+      // Grupo de tareas 0 a 3
+      common.parallel(
+        candidatos.slice(0 * tamanoBloque, 1 * tamanoBloque).find(o),
+        candidatos.slice(1 * tamanoBloque, 2 * tamanoBloque).find(o),
+        candidatos.slice(2 * tamanoBloque, 3 * tamanoBloque).find(o),
+        candidatos.slice(3 * tamanoBloque, 4 * tamanoBloque).find(o)
+      ),
+      // Grupo de tareas 4 a 7
+      common.parallel(
+        candidatos.slice(4 * tamanoBloque, 5 * tamanoBloque).find(o),
+        candidatos.slice(5 * tamanoBloque, 6 * tamanoBloque).find(o),
+        candidatos.slice(6 * tamanoBloque, 7 * tamanoBloque).find(o),
+        candidatos.slice(7 * tamanoBloque, 8 * tamanoBloque).find(o)
+      ),
+      // Grupo de tareas 8 a 11
+      common.parallel(
+        candidatos.slice(8 * tamanoBloque, 9 * tamanoBloque).find(o),
+        candidatos.slice(9 * tamanoBloque, 10 * tamanoBloque).find(o),
+        candidatos.slice(10 * tamanoBloque, 11 * tamanoBloque).find(o),
+        candidatos.slice(11 * tamanoBloque, 12 * tamanoBloque).find(o)
+      ),
+      // Grupo de tareas 12 a 15 (el último bloque va hasta el final)
+      common.parallel(
+        candidatos.slice(12 * tamanoBloque, 13 * tamanoBloque).find(o),
+        candidatos.slice(13 * tamanoBloque, 14 * tamanoBloque).find(o),
+        candidatos.slice(14 * tamanoBloque, 15 * tamanoBloque).find(o),
+        candidatos.slice(15 * tamanoBloque, totalCandidatos).find(o)
+      )
     )
 
-    resA.orElse(resC).orElse(resG).orElse(resT).getOrElse(Seq.empty)
+    // 4. Desempaqueta los resultados de las tuplas anidadas
+    val (r0, r1, r2, r3) = res_0_3
+    val (r4, r5, r6, r7) = res_4_7
+    val (r8, r9, r10, r11) = res_8_11
+    val (r12, r13, r14, r15) = res_12_15
+
+    // 5. Encadena la búsqueda del primer resultado válido (`Some`)
+    r0.orElse(r1).orElse(r2).orElse(r3)
+      .orElse(r4).orElse(r5).orElse(r6).orElse(r7)
+      .orElse(r8).orElse(r9).orElse(r10).orElse(r11)
+      .orElse(r12).orElse(r13).orElse(r14).orElse(r15)
+      .getOrElse(Seq.empty[Char])
   }
 
   // --- MEJORADO PARALELO ---

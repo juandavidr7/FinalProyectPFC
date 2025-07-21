@@ -5,26 +5,25 @@ import scala.annotation.tailrec
 
 package object ReconstCadenas {
   // Solucion ingenua
+  // Solucion ingenua
   def reconstruirCadenaIngenuo(n: Int, o: Oraculo): Seq[Char] = {
-    def generarCadenas(k: Int): Iterator[Vector[Char]] = {
-      if (k == 0) {
-        Iterator(Vector.empty[Char])
-      } else {
-        val prefijos: Iterator[Vector[Char]] = generarCadenas(k - 1)
+    // Genera todas las cadenas de longitud exactamente n sobre el alfabeto
+    val candidatos: LazyList[Seq[Char]] =
+      (1 to n).foldLeft(LazyList(Seq.empty[Char])) { (acc, _) =>
         for {
-          prefijo <- prefijos
-          char <- alfabeto.iterator
-        } yield {
-          prefijo :+ char
-        }
+          prefijo <- acc
+          c <- alfabeto
+        } yield prefijo :+ c
       }
+
+    // Busca la primera cadena aceptada por el oráculo
+    candidatos.find(o) match {
+      case Some(cadena) => cadena
+      case None => Seq.empty[Char]
     }
-    val candidatos: Iterator[Vector[Char]] = generarCadenas(n)
-    val resultado: Option[Vector[Char]] = candidatos.find(o)
-    resultado.getOrElse(Seq.empty[Char])
   }
 
-//  def reconstruirCadenaIngenuo1(n: Int, o: Oraculo): Seq[Char] = {
+    //  def reconstruirCadenaIngenuo1(n: Int, o: Oraculo): Seq[Char] = {
 //    // Genera todas las cadenas de longitud exactamente n sobre el alfabeto
 //    val candidatos: Iterator[Seq[Char]] =
 //      (1 to n).foldLeft(Iterator(Seq.empty[Char])) { (acc, _) =>
