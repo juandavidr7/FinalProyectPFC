@@ -4,10 +4,6 @@ import ReconstCadenasPar._
 import common._
 import scala.collection.parallel.CollectionConverters._
 
-val sec14 = List('a','g','t','t','c','c','a','g','g','a','c','t','a','t','g','c')
-val or14 = crearOraculo(1)(sec14)
-val resultado14 = reconstruirCadenaTurboAcelerada(sec14.length, or14)
-resultado14 == sec14
 
 // Pruebas solución ingenua
 val sec9 = List('g','g','c','a','t','a','c','g')

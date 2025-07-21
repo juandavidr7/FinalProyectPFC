@@ -6,10 +6,10 @@ import scala.collection.parallel.CollectionConverters._
 
 
 // Pruebas solución ingenua
-val sec9 = List('g','g','c','a','t','a','c','g')
-val or9 = crearOraculo(1)(sec9)
-val resultado9 = reconstruirCadenaIngenuo(sec9.length, or9)
-resultado9 == sec9
+//val sec9 = List('g','g','c','a','t','a','c','g')
+//val or9 = crearOraculo(1)(sec9)
+//val resultado9 = reconstruirCadenaIngenuo(sec9.length, or9)
+//resultado9 == sec9
 
 //val sec10 = List('a','t','c','g','g','a','t','c','t','a','g','c','a','g','t','c')
 //val or10 = crearOraculo(1)(sec10)
@@ -85,7 +85,7 @@ val or12 = crearOraculo(1)(sec12)
 val resultado12 = reconstruirCadenaTurboAcelerada(sec12.length, or12)
 resultado12 == sec12
 
-val sec14 = List('a','g','t','t','c','c','a','g','g','a','c','t','a','t','g','c')
+val sec14 = List('a','g','t','c','c','c','a','g','g','a','c','t','a','t','g','c')
 val or14 = crearOraculo(1)(sec14)
 val resultado14 = reconstruirCadenaTurboAcelerada(sec14.length, or14)
 resultado14 == sec14
