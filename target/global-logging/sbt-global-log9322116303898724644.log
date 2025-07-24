@@ -1,0 +1,134 @@
+[debug] > Exec(early(addDefaultCommands), None, None)
+[debug] > Exec(addDefaultCommands, None, None)
+[debug] > Exec(early(initialize), None, None)
+[debug] > Exec(initialize, None, None)
+[debug] > Exec(boot, None, None)
+[debug] > Exec(writeSbtVersion, None, None)
+[debug] > Exec(reload, None, None)
+[debug] > Exec(sbtStashOnFailure, None, None)
+[debug] > Exec(onFailure loadFailed, None, None)
+[debug] > Exec(loadp, None, None)
+[info] welcome to sbt 1.10.1 (Oracle Corporation Java 23.0.2)
+[debug] Load.defaultLoad until apply took 120.3577ms
+[debug]                 Load.loadUnit: plugins took 98.0705ms
+[debug]                 Load.loadUnit: defsScala took 0.3588ms
+[debug] [Loading] Scanning directory C:\Users\Juan David\Proyecto\FinalProyectPFC\project\project
+[debug]                   Load.loadUnit: mkEval took 7.6912ms
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Users\Juan David\Proyecto\FinalProyectPFC\project\project, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 10.856 ms
+[info] loading settings for project finalproyectpfc-build-build from metals.sbt ...
+[debug]                     Load.resolveProject(finalproyectpfc-build-build) took 27.6124ms
+[debug]                   Load.loadTransitive: finalizeProject(Project(id finalproyectpfc-build-build, base: C:\Users\Juan David\Proyecto\FinalProyectPFC\project\project, plugins: List(<none>))) took 49.4921ms
+[debug] [Loading] Done in C:\Users\Juan David\Proyecto\FinalProyectPFC\project\project, returning: (finalproyectpfc-build-build)
+[debug]                 Load.loadUnit: loadedProjectsRaw took 258.7781ms
+[debug]                 Load.loadUnit: cleanEvalClasses took 23.8947ms
+[debug]               Load.loadUnit(file:/C:/Users/Juan%20David/Proyecto/FinalProyectPFC/project/project/, ...) took 386.8851ms
+[debug]             Load.apply: load took 471.8913ms
+[debug]             Load.apply: resolveProjects took 3.8719ms
+[debug]             Load.apply: finalTransforms took 52.7995ms
+[debug]             Load.apply: config.delegates took 6.8622ms
+[debug]             Load.apply: Def.make(settings)... took 401.7847ms
+[debug]             Load.apply: structureIndex took 170.0276ms
+[debug]             Load.apply: mkStreams took 3.182ms
+[info] loading project definition from C:\Users\Juan David\Proyecto\FinalProyectPFC\project\project
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug]           Load.loadUnit: plugins took 2810.8226ms
+[debug]           Load.loadUnit: defsScala took 0.0023ms
+[debug] [Loading] Scanning directory C:\Users\Juan David\Proyecto\FinalProyectPFC\project
+[debug]             Load.loadUnit: mkEval took 0.2895ms
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Users\Juan David\Proyecto\FinalProyectPFC\project, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(bloop.integrations.sbt.BloopPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(bloop.integrations.sbt.BloopPlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,bloop.integrations.sbt.BloopPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 1.1688 ms
+[info] loading settings for project finalproyectpfc-build from metals.sbt ...
+[debug]               Load.resolveProject(finalproyectpfc-build) took 12.5806ms
+[debug]             Load.loadTransitive: finalizeProject(Project(id finalproyectpfc-build, base: C:\Users\Juan David\Proyecto\FinalProyectPFC\project, plugins: List(<none>))) took 14.1825ms
+[debug] [Loading] Done in C:\Users\Juan David\Proyecto\FinalProyectPFC\project, returning: (finalproyectpfc-build)
+[debug]           Load.loadUnit: loadedProjectsRaw took 34.9672ms
+[debug]           Load.loadUnit: cleanEvalClasses took 4.5869ms
+[debug]         Load.loadUnit(file:/C:/Users/Juan%20David/Proyecto/FinalProyectPFC/project/, ...) took 2851.0587ms
+[debug]       Load.apply: load took 2852.8192ms
+[debug]       Load.apply: resolveProjects took 0.1212ms
+[debug]       Load.apply: finalTransforms took 9.326ms
+[debug]       Load.apply: config.delegates took 0.2497ms
+[debug]       Load.apply: Def.make(settings)... took 64.8878ms
+[debug]       Load.apply: structureIndex took 20.7613ms
+[debug]       Load.apply: mkStreams took 0.0025ms
+[info] loading project definition from C:\Users\Juan David\Proyecto\FinalProyectPFC\project
+[debug] Evaluating tasks: bloopInstall
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[success] Generated .bloop\finalproyectpfc-build.json
+[success] Total time: 3 s, completed Jul 24, 2025, 10:50:56 AM
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug]     Load.loadUnit: plugins took 6400.1987ms
+[debug]     Load.loadUnit: defsScala took 0.0024ms
+[debug] [Loading] Scanning directory C:\Users\Juan David\Proyecto\FinalProyectPFC
+[debug]       Load.loadUnit: mkEval took 0.3407ms
+[debug] [Loading] Found root project root w/ remaining 
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(bloop.integrations.sbt.BloopPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(bloop.integrations.sbt.BloopPlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,bloop.integrations.sbt.BloopPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 2.4413 ms
+[info] loading settings for project root from build.sbt ...
+[debug]         Load.resolveProject(root) took 29.6002ms
+[debug]       Load.loadTransitive: finalizeProject(Project(id root, base: C:\Users\Juan David\Proyecto\FinalProyectPFC, plugins: List(<none>))) took 33.2783ms
+[debug] [Loading] Done in C:\Users\Juan David\Proyecto\FinalProyectPFC, returning: (root)
+[debug]     Load.loadUnit: loadedProjectsRaw took 157.8414ms
+[debug]     Load.loadUnit: cleanEvalClasses took 36.2322ms
+[debug]   Load.loadUnit(file:/C:/Users/Juan%20David/Proyecto/FinalProyectPFC/, ...) took 6595.6393ms
+[debug] Load.apply: load took 6612.6327ms
+[debug] Load.apply: resolveProjects took 0.1342ms
+[debug] Load.apply: finalTransforms took 28.4941ms
+[debug] Load.apply: config.delegates took 0.4507ms
+[debug] Load.apply: Def.make(settings)... took 80.3548ms
+[debug] Load.apply: structureIndex took 22.6561ms
+[debug] Load.apply: mkStreams took 0.0041ms
+[info] set current project to final_proyect_PFC (in build file:/C:/Users/Juan%20David/Proyecto/FinalProyectPFC/)
+[debug] > Exec(sbtPopOnFailure, None, None)
+[debug] > Exec(resumeFromFailure, None, None)
+[debug] > Exec(notifyUsersAboutShell, None, None)
+[debug] > Exec(iflast shell, None, None)
+[debug] > Exec(shell, None, None)
+[info] sbt server started at local:sbt-server-6d1e1e10180d5eb0f413
+[debug] Writing bsp connection file
+[info] started sbt server
