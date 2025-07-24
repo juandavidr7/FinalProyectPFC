@@ -1,12 +1,12 @@
-// Guardar como Pruebas.scala
 import Oraculo._
 import ReconstCadenas._
 import ReconstCadenasPar._
 import scala.util.{Try, Success, Failure}
 import scala.util.Random
+import Benchmark._
 
 // =================================================================================
-// ARCHIVO DE PRUEBAS, BENCHMARK Y COMPARATIVA DE SPEEDUP (CON COSTE DE ORÁCULO DINÁMICO)
+// ARCHIVO DE PRUEBAS, BENCHMARK Y COMPARATIVA DE SPEEDUP
 // =================================================================================
 
 // ---------------------------------------------------------------------------------
@@ -20,13 +20,8 @@ def secAlAzar(long: Int): Seq[Char] = {
   (1 to longitudValida).map(_ => alfabeto(random.nextInt(alfabeto.length)))
 }
 
-def medirTiempo[A](block: => A): (A, Double) = {
-  val t0 = System.nanoTime()
-  val resultado = block
-  val t1 = System.nanoTime()
-  val tiempoMs = (t1 - t0) / 1e6
-  (resultado, tiempoMs)
-}
+// La función `medirTiempo` manual ha sido eliminada.
+// En su lugar, usaremos `medirConResultado` del objeto Benchmark.
 
 // ---------------------------------------------------------------------------------
 // 2. FUNCIÓN PRINCIPAL DE COMPARACIÓN Y VERIFICACIÓN
@@ -45,21 +40,11 @@ def compararYVerificar(
 
   for (s <- secuencias) {
     val n = s.length
-
-    // --- LÓGICA DE COSTE DINÁMICO ---
-    // Determinar el costo del oráculo para evitar tiempos de ejecución excesivos en pruebas grandes,
-    // pero manteniendo un coste realista para las pequeñas.
-    val costoOraculo = nombreAlgo match {
-      case "Ingenuo" if n > 11 => 0
-      case "Mejorado" if n > 22 => 0
-      case "Turbo" | "TurboMejorada" | "TurboAcelerada" if n >= 1024 => 0
-      case _ => 1 // Costo por defecto para el resto de casos
-    }
+    val costoOraculo = 1
 
     val o = crearOraculo(costoOraculo)(s)
-
-    val resSec = Try(medirTiempo(fnSec(n, o)))
-    val resPar = Try(medirTiempo(fnPar(n, o)))
+    val resSec = Try(medirConResultado(fnSec(n, o)))
+    val resPar = Try(medirConResultado(fnPar(n, o)))
 
     (resSec, resPar) match {
       case (Success((obtenidoSec, tSec)), Success((obtenidoPar, tPar))) =>
@@ -99,9 +84,9 @@ def compararYVerificar(
 
 println("Generando secuencias de prueba...")
 
-val secsCortas = (1 to 13).map(secAlAzar) // Hasta n=15 para Ingenuo
+val secsCortas = (1 to 13).map(secAlAzar)
 val secsParaMejorado = (10 to 32 by 4).map(secAlAzar)
-val secsLargas = (4 to 11).map(i => secAlAzar(math.pow(2, i).toInt)) // 16, 32, ..., 4096
+val secsLargas = (4 to 12).map(i => secAlAzar(math.pow(2, i).toInt)) 
 
 println("Datos generados. Iniciando comparativas...")
 println(s"Usando ${Runtime.getRuntime.availableProcessors()} procesadores para tareas paralelas.")

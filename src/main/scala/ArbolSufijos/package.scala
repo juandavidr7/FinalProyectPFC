@@ -1,21 +1,10 @@
 package object ArbolSufijos {
 
-  /**
-   * Un diseño de Trie más robusto y estándar.
-   * Un Trie es un mapa de caracteres a otros Tries (sub-árboles),
-   * y un booleano que indica si este nodo marca el final de una palabra.
-   */
+ 
   case class Trie(
                    hijos: Map[Char, Trie] = Map.empty,
                    esFinDePalabra: Boolean = false
                  )
-
-  /**
-   * Devuelve true si la secuencia 's' está contenida en el Trie 't'.
-   * @param s La secuencia a buscar.
-   * @param t El Trie donde buscar.
-   * @return Boolean indicando si la secuencia pertenece al Trie.
-   */
   @annotation.tailrec
   def pertenece(s: Seq[Char], t: Trie): Boolean = {
     if (s.isEmpty) {
@@ -32,13 +21,7 @@ package object ArbolSufijos {
       }
     }
   }
-
-  /**
-   * Adiciona una secuencia 's' a un Trie 't' de forma inmutable.
-   * @param s La secuencia a añadir.
-   * @param t El Trie al cual se añade la secuencia.
-   * @return Un nuevo Trie con la secuencia añadida.
-   */
+  
   def adicionar(s: Seq[Char], t: Trie): Trie = {
     if (s.isEmpty) {
       // Si la secuencia se ha consumido, creamos una copia del nodo actual
@@ -59,12 +42,7 @@ package object ArbolSufijos {
       t.copy(hijos = t.hijos + (charActual -> nuevoSubTrie))
     }
   }
-
-  /**
-   * Construye un Trie a partir de una colección de secuencias.
-   * @param ss La colección de secuencias (palabras).
-   * @return El Trie que contiene todas las secuencias.
-   */
+  
   def arbolDeSufijos(ss: Seq[Seq[Char]]): Trie = {
     // Empezamos con un Trie vacío y vamos añadiendo cada secuencia
     // usando foldLeft para mantener la inmutabilidad.

@@ -1,28 +1,29 @@
-import org.scalameter._
-import Oraculo.Oraculo // Importamos el tipo Oraculo para usarlo en las firmas
+import org.scalameter.*
+import org.scalameter.KeyValue._
+import Oraculo._
 
+// Se define como un objeto para que sea fácilmente importable
 package object Benchmark {
+  
+  def medirConResultado[A](block: => A): (A, Double) = {
+    val cfg = config(
+      Key.exec.minWarmupRuns -> 0,
+      Key.exec.maxWarmupRuns -> 0,
+      Key.verbose -> false
+    )
+    var resultado: A = null.asInstanceOf[A]
+    val tiempo = cfg measure {
+      resultado = block
+    }
+    (resultado, tiempo.value)
+  }
+  
 
-  /**
-   * Compara una versión secuencial y una paralela de un algoritmo de reconstrucción.
-   *
-   * Esta función está diseñada específicamente para la firma de los algoritmos del proyecto.
-   * Mide el tiempo de ejecución de ambas funciones con los mismos datos de entrada
-   * y calcula el speedup.
-   *
-   * @param fnSecuencial La función secuencial, con firma (Int, Oraculo) => Seq[Char].
-   * @param fnParalela   La función paralela, con firma currificada Int => (Int, Oraculo) => Seq[Char].
-   * @param umbral       El umbral para decidir cuándo la función paralela debe usar paralelismo.
-   * @param n            La longitud de la secuencia a reconstruir.
-   * @param o            El oráculo ya creado para la secuencia.
-   * @return Una tupla (tiempo secuencial, tiempo paralelo, speedup).
-   */
   def compararAlgoritmos(
                           fnSecuencial: (Int, Oraculo) => Seq[Char],
                           fnParalela: Int => (Int, Oraculo) => Seq[Char]
                         )(umbral: Int, n: Int, o: Oraculo): (Double, Double, Double) = {
 
-    // Configuración de ScalaMeter para mediciones directas sin calentamiento
     val cfg = config(
       KeyValue(Key.exec.minWarmupRuns -> 0),
       KeyValue(Key.exec.maxWarmupRuns -> 0),
@@ -45,12 +46,6 @@ package object Benchmark {
     (tiempoSecuencial.value, tiempoParalelo.value, speedup)
   }
 
-  /**
-   * Compara dos funciones genéricas de tipo (A => B), donde la entrada A
-   * ya ha sido preparada externamente.
-   * Útil para otros benchmarks (matrices, vectores, etc.).
-   * Configura los warmup runs a 0.
-   */
   def compararGenerico[A, B](
                               f1: A => B,
                               f2: A => B
