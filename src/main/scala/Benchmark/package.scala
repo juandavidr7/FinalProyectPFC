@@ -1,15 +1,15 @@
-import org.scalameter.*
-import org.scalameter.KeyValue._
+import org.scalameter._
 import Oraculo._
+
 
 // Se define como un objeto para que sea fácilmente importable
 package object Benchmark {
-  
+
   def medirConResultado[A](block: => A): (A, Double) = {
     val cfg = config(
-      Key.exec.minWarmupRuns -> 0,
-      Key.exec.maxWarmupRuns -> 0,
-      Key.verbose -> false
+      Key.exec.minWarmupRuns := 0, // CORREGIDO
+      Key.exec.maxWarmupRuns := 0, // CORREGIDO
+      Key.verbose := false         // CORREGIDO
     )
     var resultado: A = null.asInstanceOf[A]
     val tiempo = cfg measure {
@@ -17,7 +17,6 @@ package object Benchmark {
     }
     (resultado, tiempo.value)
   }
-  
 
   def compararAlgoritmos(
                           fnSecuencial: (Int, Oraculo) => Seq[Char],
@@ -25,22 +24,19 @@ package object Benchmark {
                         )(umbral: Int, n: Int, o: Oraculo): (Double, Double, Double) = {
 
     val cfg = config(
-      KeyValue(Key.exec.minWarmupRuns -> 0),
-      KeyValue(Key.exec.maxWarmupRuns -> 0),
-      KeyValue(Key.verbose -> false)
+      Key.exec.minWarmupRuns := 0, // CORREGIDO
+      Key.exec.maxWarmupRuns := 0, // CORREGIDO
+      Key.verbose := false         // CORREGIDO
     )
 
-    // Medir el tiempo de la versión secuencial
     val tiempoSecuencial = cfg measure {
       fnSecuencial(n, o)
     }
 
-    // Medir el tiempo de la versión paralela, aplicando sus parámetros
     val tiempoParalelo = cfg measure {
       fnParalela(umbral)(n, o)
     }
 
-    // Calcular el speedup
     val speedup = tiempoSecuencial.value / tiempoParalelo.value
 
     (tiempoSecuencial.value, tiempoParalelo.value, speedup)
@@ -51,9 +47,9 @@ package object Benchmark {
                               f2: A => B
                             )(input: A): (Double, Double, Double) = {
     val cfg = config(
-      KeyValue(Key.exec.minWarmupRuns -> 0),
-      KeyValue(Key.exec.maxWarmupRuns -> 0),
-      KeyValue(Key.verbose -> false)
+      Key.exec.minWarmupRuns := 0, // CORREGIDO
+      Key.exec.maxWarmupRuns := 0, // CORREGIDO
+      Key.verbose := false         // CORREGIDO
     )
 
     val t1 = cfg measure { f1(input) }
