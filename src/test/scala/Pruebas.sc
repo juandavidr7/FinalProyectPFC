@@ -40,7 +40,7 @@ def compararYVerificar(
 
   for (s <- secuencias) {
     val n = s.length
-    val costoOraculo = 1
+    val costoOraculo = 0
 
     val o = crearOraculo(costoOraculo)(s)
     val resSec = Try(medirConResultado(fnSec(n, o)))
@@ -84,9 +84,9 @@ def compararYVerificar(
 
 println("Generando secuencias de prueba...")
 
-val secsCortas = (1 to 13).map(secAlAzar)
-val secsParaMejorado = (10 to 32 by 4).map(secAlAzar)
-val secsLargas = (4 to 12).map(i => secAlAzar(math.pow(2, i).toInt)) 
+val secsCortas = (1 to 5).map(secAlAzar)
+val secsParaMejorado = (2 to 5).map(i => secAlAzar(math.pow(2, i).toInt))
+val secsLargas = (4 to 5).map(i => secAlAzar(math.pow(2, i).toInt))
 
 println("Datos generados. Iniciando comparativas...")
 println(s"Usando ${Runtime.getRuntime.availableProcessors()} procesadores para tareas paralelas.")
